@@ -16,7 +16,8 @@ import { nostrLink } from "@/lib/plugins/nostr-link"
 import { db } from "@/database/db"
 import * as schema from "@/database/schema"
 import { sendEmail } from "./email"
-import { INVITE_TOKEN_COOKIE, inviteOnly, isUsableInviteToken } from "./invite-only"
+import { INVITE_TOKEN_COOKIE, inviteOnly } from "./invite-only"
+import { isUsableInviteToken } from "./invite-only-server"
 import { organizationsEnabled } from "./organizations"
 
 /** Bridges better-invite `$ERROR_CODES` to Better Auth’s `RawError` shape. See `docs/typescript-better-invite.md`. */

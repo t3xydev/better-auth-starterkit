@@ -9,7 +9,11 @@ import { SignInView } from "@/components/sign-in-view"
 import { TwoFactorView } from "@/components/two-factor-view"
 import { db } from "@/database/db"
 import { users } from "@/database/schema"
-import { getInviteTokenFromCookies, inviteOnly, isUsableInviteToken } from "@/lib/invite-only"
+import { inviteOnly } from "@/lib/invite-only"
+import {
+    getInviteTokenFromCookies,
+    isUsableInviteToken,
+} from "@/lib/invite-only-server"
 
 export const dynamicParams = false
 
