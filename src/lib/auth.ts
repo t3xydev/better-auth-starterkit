@@ -14,6 +14,7 @@ import { nostrLink } from "@/lib/plugins/nostr-link"
 import { db } from "@/database/db"
 import * as schema from "@/database/schema"
 import { sendEmail } from "./email"
+import { organizationsEnabled } from "./organizations"
 
 /** Bridges better-invite `$ERROR_CODES` to Better Auth’s `RawError` shape. See `docs/typescript-better-invite.md`. */
 type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> & Pick<BetterAuthPlugin, "$ERROR_CODES">
@@ -94,16 +95,20 @@ export const auth = betterAuth({
                 }),
             },
         }),
-        organization({
-            async sendInvitationEmail(data) {
-                const inviteLink = `${authOrigin}/auth/accept-invitation?invitationId=${data.id}`
-                void sendEmail({
-                    to: data.email,
-                    subject: `Join ${data.organization.name}`,
-                    text: `${data.inviter.user.name} invited you to join ${data.organization.name}. Accept the invitation: ${inviteLink}`,
-                })
-            },
-        }),
+        ...(organizationsEnabled
+            ? [
+                  organization({
+                      async sendInvitationEmail(data) {
+                          const inviteLink = `${authOrigin}/auth/accept-invitation?invitationId=${data.id}`
+                          void sendEmail({
+                              to: data.email,
+                              subject: `Join ${data.organization.name}`,
+                              text: `${data.inviter.user.name} invited you to join ${data.organization.name}. Accept the invitation: ${inviteLink}`,
+                          })
+                      },
+                  }),
+              ]
+            : []),
         invite({
             // Custom UI activation flow — see https://www.better-invite.com/docs/examples
             defaultCustomInviteUrl: `${authOrigin}/activate-invite/{token}`,

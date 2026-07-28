@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
 import { authClient } from "@/lib/auth-client"
+import { organizationsEnabled } from "@/lib/organizations"
 
 type Organization = {
     id: string
@@ -21,7 +22,7 @@ type Organization = {
     metadata?: Record<string, unknown> | null
 }
 
-export function HeaderUserMenu() {
+function HeaderUserMenuWithOrganizations() {
     const { data: session } = authClient.useSession()
     const [organizations, setOrganizations] = useState<Organization[]>([])
     const [createOpen, setCreateOpen] = useState(false)
@@ -115,4 +116,12 @@ export function HeaderUserMenu() {
             <CreateOrganizationDialog open={createOpen} onOpenChange={setCreateOpen} />
         </>
     )
+}
+
+export function HeaderUserMenu() {
+    if (!organizationsEnabled) {
+        return <UserButton size="icon" align="end" />
+    }
+
+    return <HeaderUserMenuWithOrganizations />
 }

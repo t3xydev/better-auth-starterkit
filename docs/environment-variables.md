@@ -63,6 +63,7 @@ Customize the app name, theme color, and asset URLs. All are optional.
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `NEXT_PUBLIC_HIDE_GITHUB` | Set to `"true"` to hide the GitHub link in the header. | Not set (link visible) |
+| `NEXT_PUBLIC_ORGANIZATIONS_ENABLED` | Set to `"true"` to enable the organizations plugin and UI (members, invites, `/organization/*`). | `false` |
 
 ---
 

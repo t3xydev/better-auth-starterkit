@@ -9,6 +9,7 @@ import { Suspense } from "react"
 import { Toaster } from "sonner"
 
 import { authClient } from "@/lib/auth-client"
+import { organizationsEnabled } from "@/lib/organizations"
 import { AuthDevtools } from "@/components/better-auth-devtools"
 import { DbscInit } from "@/components/dbsc-init"
 import { PHProvider } from "@/components/posthog-provider"
@@ -44,7 +45,7 @@ export function Providers({ children }: { children: ReactNode }) {
                     redirectTo="/account/settings"
                     twoFactor={["totp"]}
                     passkey
-                    organization
+                    organization={organizationsEnabled || undefined}
                 >
                     <DbscInit />
                     <Suspense fallback={null}>

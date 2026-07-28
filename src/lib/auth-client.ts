@@ -8,6 +8,7 @@ import { inviteClient, type invite } from "better-invite"
 import { nostrClient } from "better-auth-nostr/client"
 import { dbscClient } from "@dbsc-toolkit/better-auth/client"
 import posthog from "@/lib/posthog"
+import { organizationsEnabled } from "@/lib/organizations"
 
 /** See `docs/typescript-better-invite.md` — must match server `invite()` shim. */
 type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> & Pick<BetterAuthPlugin, "$ERROR_CODES">
@@ -30,7 +31,7 @@ export const authClient = createAuthClient({
   plugins: [
     passkeyClient(),
     adminClient(),
-    organizationClient(),
+    ...(organizationsEnabled ? [organizationClient()] : []),
     dashClient(),
     sentinelClient({
       autoSolveChallenge: true,

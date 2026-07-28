@@ -49,7 +49,7 @@ Clone it, set three variables, migrate, deploy. Extend the plugins as you grow.
 | Passkeys (WebAuthn) | Ready |
 | Two-factor authentication (TOTP) | Ready |
 | User invitations | Ready |
-| Organizations (members, roles, invites) | Ready |
+| Organizations (members, roles, invites) | Opt-in (`NEXT_PUBLIC_ORGANIZATIONS_ENABLED`) |
 | Nostr sign-in + key linking | Ready |
 | Admin role + **OAuth client management UI** | Ready |
 | OpenAPI docs for the auth API | Ready |
