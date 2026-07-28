@@ -707,17 +707,8 @@ export default function PrivacyPage() {
 
             <p>
                 If you have any questions about this Privacy Policy, You can
-                contact us:
+                contact us.
             </p>
-
-            <ul>
-                <li>
-                    Website:{" "}
-                    <a href="https://t3xy.dev" className="underline">
-                        t3xy.dev
-                    </a>
-                </li>
-            </ul>
         </main>
     )
 }

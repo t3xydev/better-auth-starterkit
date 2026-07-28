@@ -46,6 +46,13 @@ export function Providers({ children }: { children: ReactNode }) {
                     twoFactor={["totp"]}
                     passkey
                     organization={organizationsEnabled || undefined}
+                    localization={{
+                        EMAIL_PLACEHOLDER: "",
+                        PASSWORD_PLACEHOLDER: "",
+                        CONFIRM_PASSWORD_PLACEHOLDER: "",
+                        CURRENT_PASSWORD_PLACEHOLDER: "",
+                        NEW_PASSWORD_PLACEHOLDER: "",
+                    }}
                 >
                     <DbscInit />
                     <Suspense fallback={null}>
