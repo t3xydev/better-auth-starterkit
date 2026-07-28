@@ -6,7 +6,14 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { authClient } from "@/lib/auth-client"
 
-export function ActivateInviteClient({ token }: { token: string }) {
+export function ActivateInviteClient({
+    token,
+    isPrivate,
+}: {
+    token: string
+    /** better-invite only allows reject on private (email-bound) invites */
+    isPrivate: boolean
+}) {
     const router = useRouter()
     const [loading, setLoading] = useState<"accept" | "reject" | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -38,6 +45,13 @@ export function ActivateInviteClient({ token }: { token: string }) {
         setLoading("reject")
         setError(null)
 
+        // Public invites can't be rejected via the API (no invitee binding).
+        // Declining just leaves without invalidating the shared link.
+        if (!isPrivate) {
+            router.push("/")
+            return
+        }
+
         const { error: rejectError } = await authClient.invite.reject({ token })
 
         if (rejectError) {
@@ -65,7 +79,13 @@ export function ActivateInviteClient({ token }: { token: string }) {
                 disabled={loading !== null}
                 onClick={rejectInvite}
             >
-                {loading === "reject" ? "Rejecting…" : "Reject"}
+                {loading === "reject"
+                    ? isPrivate
+                        ? "Rejecting…"
+                        : "Leaving…"
+                    : isPrivate
+                      ? "Reject"
+                      : "Decline"}
             </Button>
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
         </div>

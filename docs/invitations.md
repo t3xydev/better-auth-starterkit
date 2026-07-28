@@ -12,7 +12,7 @@ This starter uses the community [better-invite](https://www.better-invite.com/) 
 | Client plugin | `inviteClient()` in [`src/lib/auth-client.ts`](../src/lib/auth-client.ts) |
 | Schema | `invites` / `invite_uses` in `auth-schema.ts` |
 | Admin UI | [`/admin/invites`](../src/app/admin/invites/page.tsx) |
-| Accept / reject UI | [`/invite/activate/[token]`](../src/app/invite/activate/[token]/page.tsx) |
+| Welcome / accept UI | [`/invite/activate/[token]`](../src/app/invite/activate/[token]/page.tsx) |
 | After accept | [`/auth/invited`](../src/app/auth/invited/page.tsx) |
 
 ## Behavior
@@ -20,7 +20,7 @@ This starter uses the community [better-invite](https://www.better-invite.com/) 
 - **Private invites** — include an email when creating; only that address can accept. An email is sent with a link to `/invite/activate/{token}`.
 - **Public invites** — omit the email; the admin UI returns a shareable URL (`senderResponse: "url"`).
 - **Who can create** — only users with `role === "admin"`, and only for roles `user` or `admin`.
-- **Activation** — recipient must be signed in, then Accept or Reject on the activate page. Unauthenticated visitors are sent to sign-in with `redirectTo` back to the invite.
+- **Welcome page** — visiting the invite link opens an introduction for `{APPLICATION_NAME}` with invite metadata (role, private/public, invited email(s), expiry, status, and inviter name when shared). Guests continue to sign-in or sign-up; signed-in users Accept or Reject (private) / Decline (public — leaves without invalidating the shared link).
 - **Cancel** — pending invites use the plugin `cancel` endpoint with `cleanupInvitesOnDecision: true`, which removes the invite row.
 - **Invite link** — pending invites can reopen/copy `{BETTER_AUTH_URL}/invite/activate/{token}` from the admin table (same URL used in emails).
 
