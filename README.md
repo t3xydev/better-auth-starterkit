@@ -104,6 +104,7 @@ pnpm dev
 Open [http://localhost:3000](http://localhost:3000) — you’ll land on sign-in.
 
 > First admin: sign up, then `UPDATE users SET role = 'admin' WHERE email = 'you@example.com';`  
+> With `NEXT_PUBLIC_INVITE_ONLY=true`, the first user can still sign up to bootstrap; later sign-ups need an invite — [invitations](docs/invitations.md).  
 > Details in [admin panel docs](docs/admin-panel.md).
 
 ## Deploy in one build command

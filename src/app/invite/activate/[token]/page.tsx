@@ -3,6 +3,7 @@ import { headers } from "next/headers"
 import Link from "next/link"
 
 import { ActivateInviteClient } from "@/components/activate-invite-client"
+import { InviteSignUpButton } from "@/components/invite-sign-up-button"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { auth } from "@/lib/auth"
+import { inviteOnly } from "@/lib/invite-only"
 import { getInviteWelcome } from "@/lib/invite-welcome"
 
 const appName = process.env.APPLICATION_NAME || "Better Auth StarterKit"
@@ -186,7 +188,9 @@ export default async function InviteWelcomePage({
                     ) : !session?.user ? (
                         <p className="text-sm text-muted-foreground">
                             {invite.newAccount
-                                ? "Create an account or sign in to accept this invite."
+                                ? inviteOnly
+                                    ? "Create an account with this invite, or sign in if you already have one."
+                                    : "Create an account or sign in to accept this invite."
                                 : "Sign in to accept this invite and continue."}
                         </p>
                     ) : (
@@ -218,9 +222,13 @@ export default async function InviteWelcomePage({
                                 <Link href={signInHref}>Continue to sign in</Link>
                             </Button>
                             {invite.newAccount !== false ? (
-                                <Button asChild className="w-full" variant="outline">
-                                    <Link href={signUpHref}>Create an account</Link>
-                                </Button>
+                                inviteOnly ? (
+                                    <InviteSignUpButton token={token} />
+                                ) : (
+                                    <Button asChild className="w-full" variant="outline">
+                                        <Link href={signUpHref}>Create an account</Link>
+                                    </Button>
+                                )
                             ) : null}
                         </>
                     ) : (

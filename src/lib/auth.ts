@@ -1,4 +1,5 @@
 import { betterAuth, type BetterAuthPlugin } from "better-auth"
+import { APIError, createAuthMiddleware } from "better-auth/api"
 import { dash, sentinel } from "@better-auth/infra"
 import { passkey, getAuthenticatorName } from "@better-auth/passkey"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
@@ -14,6 +15,7 @@ import { nostrLink } from "@/lib/plugins/nostr-link"
 import { db } from "@/database/db"
 import * as schema from "@/database/schema"
 import { sendEmail } from "./email"
+import { INVITE_TOKEN_COOKIE, inviteOnly } from "./invite-only"
 import { organizationsEnabled } from "./organizations"
 
 /** Bridges better-invite `$ERROR_CODES` to Better Auth’s `RawError` shape. See `docs/typescript-better-invite.md`. */
@@ -78,6 +80,26 @@ export const auth = betterAuth({
                 text: `Click the link to reset your password: ${url}`,
             })
         },
+    },
+    hooks: {
+        before: createAuthMiddleware(async (ctx) => {
+            if (!inviteOnly || ctx.path !== "/sign-up/email") return
+
+            const inviteCookie = ctx.context.createAuthCookie(INVITE_TOKEN_COOKIE)
+            const token = await ctx.getSignedCookie(
+                inviteCookie.name,
+                ctx.context.secret,
+            )
+            if (token) return
+
+            // Allow the very first account so an admin can bootstrap invites
+            const existingUsers = await ctx.context.internalAdapter.countTotalUsers()
+            if (existingUsers === 0) return
+
+            throw new APIError("FORBIDDEN", {
+                message: "An invitation is required to create an account.",
+            })
+        }),
     },
     disabledPaths: ["/token"],
     plugins: [
