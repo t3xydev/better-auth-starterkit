@@ -43,6 +43,7 @@ export const sessions = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     impersonatedBy: text("impersonated_by"),
+    activeOrganizationId: text("active_organization_id"),
   },
   (table) => [index("sessions_userId_idx").on(table.userId)],
 );
@@ -126,6 +127,56 @@ export const passkeys = pgTable(
   (table) => [
     index("passkeys_userId_idx").on(table.userId),
     index("passkeys_credentialID_idx").on(table.credentialID),
+  ],
+);
+
+export const organizations = pgTable("organizations", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  logo: text("logo"),
+  createdAt: timestamp("created_at").notNull(),
+  metadata: text("metadata"),
+});
+
+export const members = pgTable(
+  "members",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: text("role").default("member").notNull(),
+    createdAt: timestamp("created_at").notNull(),
+  },
+  (table) => [
+    index("members_organizationId_idx").on(table.organizationId),
+    index("members_userId_idx").on(table.userId),
+  ],
+);
+
+export const invitations = pgTable(
+  "invitations",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: text("role"),
+    status: text("status").default("pending").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    inviterId: text("inviter_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    index("invitations_organizationId_idx").on(table.organizationId),
+    index("invitations_email_idx").on(table.email),
   ],
 );
 
@@ -334,6 +385,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   accounts: many(accounts),
   twoFactors: many(twoFactors),
   passkeys: many(passkeys),
+  members: many(members),
+  invitations: many(invitations),
   invites: many(invites),
   inviteUses: many(inviteUses),
   nostrPubkeys: many(nostrPubkeys),
@@ -371,6 +424,33 @@ export const twoFactorsRelations = relations(twoFactors, ({ one }) => ({
 export const passkeysRelations = relations(passkeys, ({ one }) => ({
   users: one(users, {
     fields: [passkeys.userId],
+    references: [users.id],
+  }),
+}));
+
+export const organizationsRelations = relations(organizations, ({ many }) => ({
+  members: many(members),
+  invitations: many(invitations),
+}));
+
+export const membersRelations = relations(members, ({ one }) => ({
+  organizations: one(organizations, {
+    fields: [members.organizationId],
+    references: [organizations.id],
+  }),
+  users: one(users, {
+    fields: [members.userId],
+    references: [users.id],
+  }),
+}));
+
+export const invitationsRelations = relations(invitations, ({ one }) => ({
+  organizations: one(organizations, {
+    fields: [invitations.organizationId],
+    references: [organizations.id],
+  }),
+  users: one(users, {
+    fields: [invitations.inviterId],
     references: [users.id],
   }),
 }));

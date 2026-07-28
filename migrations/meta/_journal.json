@@ -78,6 +78,13 @@
       "when": 1785088245315,
       "tag": "0010_lucky_rhodey",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785262609733,
+      "tag": "0011_stormy_frog_thor",
+      "breakpoints": true
     }
   ]
 }

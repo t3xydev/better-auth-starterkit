@@ -1,9 +1,10 @@
-import { GitHubIcon, UserButton } from "@daveyplate/better-auth-ui"
+import { GitHubIcon } from "@daveyplate/better-auth-ui"
 import { headers } from "next/headers"
 import Link from "next/link"
 import { Settings } from "lucide-react"
 
 import { auth } from "@/lib/auth"
+import { HeaderUserMenu } from "./header-user-menu"
 import { ModeToggle } from "./mode-toggle"
 import { Button } from "./ui/button"
 
@@ -61,7 +62,7 @@ export async function Header() {
                 )}
 
                 <ModeToggle />
-                <UserButton size="icon" />
+                <HeaderUserMenu />
             </div>
         </header>
     )

@@ -44,6 +44,7 @@ export function Providers({ children }: { children: ReactNode }) {
                     redirectTo="/account/settings"
                     twoFactor={["totp"]}
                     passkey
+                    organization
                 >
                     <DbscInit />
                     <Suspense fallback={null}>

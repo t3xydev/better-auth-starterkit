@@ -3,7 +3,7 @@ import { dash, sentinel } from "@better-auth/infra"
 import { passkey, getAuthenticatorName } from "@better-auth/passkey"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { nextCookies } from "better-auth/next-js"
-import { admin, jwt, openAPI, twoFactor } from "better-auth/plugins"
+import { admin, jwt, openAPI, organization, twoFactor } from "better-auth/plugins"
 import { oauthProvider } from "@better-auth/oauth-provider"; 
 import { invite } from "better-invite"
 import { nostr } from "better-auth-nostr"
@@ -92,6 +92,16 @@ export const auth = betterAuth({
                         verification.registrationInfo?.aaguid,
                     ),
                 }),
+            },
+        }),
+        organization({
+            async sendInvitationEmail(data) {
+                const inviteLink = `${authOrigin}/auth/accept-invitation?invitationId=${data.id}`
+                void sendEmail({
+                    to: data.email,
+                    subject: `Join ${data.organization.name}`,
+                    text: `${data.inviter.user.name} invited you to join ${data.organization.name}. Accept the invitation: ${inviteLink}`,
+                })
             },
         }),
         invite({
