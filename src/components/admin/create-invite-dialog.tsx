@@ -26,18 +26,33 @@ import {
 } from "@/components/ui/select"
 import { createInvite } from "@/lib/actions/admin-invites"
 
+const EXPIRE_PRESETS = [
+    { value: "3600", label: "1 hour" },
+    { value: "86400", label: "24 hours" },
+    { value: "604800", label: "7 days" },
+    { value: "2592000", label: "30 days" },
+    { value: "5184000", label: "60 days" },
+    { value: "7776000", label: "90 days" },
+    // Plugin always stores expiresAt; ~100 years stands in for "never"
+    { value: "3153600000", label: "Never" },
+] as const
+
 export function CreateInviteDialog() {
     const router = useRouter()
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
     const [email, setEmail] = useState("")
     const [role, setRole] = useState<"user" | "admin">("user")
+    const [maxUses, setMaxUses] = useState("1")
+    const [expiresIn, setExpiresIn] = useState("3600")
     const [publicResult, setPublicResult] = useState<string | null>(null)
     const [copied, setCopied] = useState(false)
 
     function reset() {
         setEmail("")
         setRole("user")
+        setMaxUses("1")
+        setExpiresIn("3600")
         setPublicResult(null)
         setCopied(false)
     }
@@ -54,11 +69,25 @@ export function CreateInviteDialog() {
     }
 
     function handleCreate() {
+        const parsedMaxUses = Number.parseInt(maxUses, 10)
+        if (!Number.isFinite(parsedMaxUses) || parsedMaxUses < 1) {
+            toast.error("Max uses must be at least 1")
+            return
+        }
+
+        const parsedExpiresIn = Number.parseInt(expiresIn, 10)
+        if (!Number.isFinite(parsedExpiresIn) || parsedExpiresIn < 1) {
+            toast.error("Choose a valid expiration")
+            return
+        }
+
         startTransition(async () => {
             try {
                 const result = await createInvite({
                     email: email.trim() || undefined,
                     role,
+                    maxUses: parsedMaxUses,
+                    expiresIn: parsedExpiresIn,
                 })
 
                 if (!result.status) {
@@ -73,7 +102,6 @@ export function CreateInviteDialog() {
                     return
                 }
 
-                // Public invite: message is the token or URL
                 setPublicResult(result.message)
                 toast.success("Public invite created")
                 router.refresh()
@@ -148,6 +176,39 @@ export function CreateInviteDialog() {
                                     <SelectItem value="admin">admin</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                                <Label htmlFor="invite-max-uses">Max uses</Label>
+                                <Input
+                                    id="invite-max-uses"
+                                    type="number"
+                                    min={1}
+                                    step={1}
+                                    value={maxUses}
+                                    onChange={(e) => setMaxUses(e.target.value)}
+                                    disabled={isPending}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Expires</Label>
+                                <Select
+                                    value={expiresIn}
+                                    onValueChange={setExpiresIn}
+                                    disabled={isPending}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {EXPIRE_PRESETS.map((preset) => (
+                                            <SelectItem key={preset.value} value={preset.value}>
+                                                {preset.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => handleOpenChange(false)}>

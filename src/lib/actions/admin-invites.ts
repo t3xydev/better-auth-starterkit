@@ -42,6 +42,7 @@ export async function createInvite(data: {
     email?: string
     role: "user" | "admin"
     maxUses?: number
+    expiresIn?: number
 }): Promise<{ status: boolean; message: string }> {
     await requireAdmin()
 
@@ -51,6 +52,7 @@ export async function createInvite(data: {
             role: data.role,
             ...(data.email?.trim() ? { email: data.email.trim() } : {}),
             ...(data.maxUses != null ? { maxUses: data.maxUses } : {}),
+            ...(data.expiresIn != null ? { expiresIn: data.expiresIn } : {}),
             senderResponse: "url",
         },
     })

@@ -104,6 +104,7 @@ export function InviteTable({
                         <TableRow>
                             <TableHead>Email</TableHead>
                             <TableHead>Role</TableHead>
+                            <TableHead>Uses</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Expires</TableHead>
                             <TableHead className="w-48 text-right">Actions</TableHead>
@@ -119,6 +120,7 @@ export function InviteTable({
                                 <TableRow key={invite.id}>
                                     <TableCell className="font-medium">{email}</TableCell>
                                     <TableCell>{invite.role}</TableCell>
+                                    <TableCell>{invite.maxUses}</TableCell>
                                     <TableCell>
                                         <Badge variant={statusVariant(invite.status)}>
                                             {invite.status}
