@@ -72,7 +72,7 @@ Full breakdown → [docs/features.md](docs/features.md)
 **1. Clone & install**
 
 ```bash
-git clone https://github.com/tdev314/better-auth-starterkit.git
+git clone https://github.com/t3xydev/better-auth-starterkit.git
 cd better-auth-starterkit
 pnpm install
 ```

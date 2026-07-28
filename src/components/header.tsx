@@ -47,7 +47,7 @@ export async function Header() {
 
                 {process.env.NEXT_PUBLIC_HIDE_GITHUB !== "true" && (
                     <Link
-                        href="https://github.com/tdev314/better-auth-starterkit"
+                        href="https://github.com/t3xydev/better-auth-starterkit"
                         target="_blank"
                     >
                         <Button

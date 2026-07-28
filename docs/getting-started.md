@@ -29,7 +29,7 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/better_auth"
 ## Install
 
 ```bash
-git clone https://github.com/tdev314/better-auth-starterkit.git
+git clone https://github.com/t3xydev/better-auth-starterkit.git
 cd better-auth-starterkit
 pnpm install
 cp .env.example .env
