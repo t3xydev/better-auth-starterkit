@@ -42,7 +42,7 @@ function statusVariant(status: string): "default" | "secondary" | "destructive" 
 }
 
 function inviteLink(baseUrl: string, token: string) {
-    return `${baseUrl}/activate-invite/${token}`
+    return `${baseUrl}/invite/activate/${token}`
 }
 
 export function InviteTable({

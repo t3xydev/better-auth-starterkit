@@ -111,7 +111,7 @@ export const auth = betterAuth({
             : []),
         invite({
             // Custom UI activation flow — see https://www.better-invite.com/docs/examples
-            defaultCustomInviteUrl: `${authOrigin}/activate-invite/{token}`,
+            defaultCustomInviteUrl: `${authOrigin}/invite/activate/{token}`,
             defaultRedirectAfterUpgrade: "/auth/invited",
             defaultRedirectToSignIn: "/auth/sign-in",
             defaultRedirectToSignUp: "/auth/sign-up",

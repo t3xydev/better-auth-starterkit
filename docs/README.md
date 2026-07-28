@@ -29,7 +29,7 @@ This kit is a fork of [daveyplate/better-auth-nextjs-starter](https://github.com
 | `/account/*` | Account settings (Better Auth UI) |
 | `/admin/clients` | OAuth client admin (admin role required) |
 | `/admin/invites` | Create and manage user invites (admin role required) |
-| `/activate-invite/[token]` | Accept or reject an invite |
+| `/invite/activate/[token]` | Accept or reject an invite |
 | `/api/auth/*` | Better Auth API |
 | `/api/health` | Liveness + DB connectivity |
 | `/.well-known/openid-configuration` | OIDC discovery |
