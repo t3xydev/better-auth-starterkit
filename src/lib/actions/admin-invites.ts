@@ -43,16 +43,21 @@ export async function createInvite(data: {
     role: "user" | "admin"
     maxUses?: number
     expiresIn?: number
+    shareInviterName?: boolean
 }): Promise<{ status: boolean; message: string }> {
     await requireAdmin()
+
+    const isPrivate = Boolean(data.email?.trim())
 
     return auth.api.createInvite({
         headers: await headers(),
         body: {
             role: data.role,
-            ...(data.email?.trim() ? { email: data.email.trim() } : {}),
+            ...(isPrivate ? { email: data.email!.trim() } : {}),
             ...(data.maxUses != null ? { maxUses: data.maxUses } : {}),
             ...(data.expiresIn != null ? { expiresIn: data.expiresIn } : {}),
+            // Public invites never share; private only when explicitly enabled
+            shareInviterName: isPrivate ? Boolean(data.shareInviterName) : false,
             senderResponse: "url",
         },
     })

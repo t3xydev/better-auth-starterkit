@@ -117,6 +117,8 @@ export const auth = betterAuth({
             defaultRedirectToSignUp: "/auth/sign-up",
             defaultMaxUses: 1,
             defaultSenderResponse: "url",
+            // Keep welcome copy simple unless a private invite opts in
+            defaultShareInviterName: false,
             // Cancel/reject removes the invite row instead of leaving a canceled record
             cleanupInvitesOnDecision: true,
             // Only admins can create invites (prevents role escalation)

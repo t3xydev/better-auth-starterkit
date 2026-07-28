@@ -20,7 +20,7 @@ This starter uses the community [better-invite](https://www.better-invite.com/) 
 - **Private invites** — include an email when creating; only that address can accept. An email is sent with a link to `/invite/activate/{token}`.
 - **Public invites** — omit the email; the admin UI returns a shareable URL (`senderResponse: "url"`).
 - **Who can create** — only users with `role === "admin"`, and only for roles `user` or `admin`.
-- **Welcome page** — visiting the invite link opens an introduction for `{APPLICATION_NAME}` with invite metadata (role, private/public, invited email(s), expiry, status, and inviter name when shared). Guests continue to sign-in or sign-up; signed-in users Accept or Reject (private) / Decline (public — leaves without invalidating the shared link).
+- **Welcome page** — visiting the invite link opens an introduction for `{APPLICATION_NAME}` with invite metadata (role, private/public, invited email(s), expiry, status). Copy stays “You’ve been invited” by default; private invites can opt in to show the inviter name via **Show your name**. Guests continue to sign-in or sign-up; signed-in users Accept or Reject (private) / Decline (public — leaves without invalidating the shared link).
 - **Cancel** — pending invites use the plugin `cancel` endpoint with `cleanupInvitesOnDecision: true`, which removes the invite row.
 - **Invite link** — pending invites can reopen/copy `{BETTER_AUTH_URL}/invite/activate/{token}` from the admin table (same URL used in emails).
 

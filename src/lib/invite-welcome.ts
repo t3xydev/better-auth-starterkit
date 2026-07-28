@@ -43,17 +43,19 @@ export async function getInviteWelcome(
         ...(row.emails ?? []),
         ...(row.email ? [row.email] : []),
     ].filter((value, index, all) => all.indexOf(value) === index)
+    const isPrivate = emails.length > 0
 
     return {
         role: row.role,
         status: row.status,
         expiresAt: row.expiresAt,
         isExpired: row.expiresAt.getTime() <= Date.now(),
-        isPrivate: emails.length > 0,
+        isPrivate,
         email: row.email,
         emails,
         newAccount: row.newAccount,
         maxUses: row.maxUses,
-        inviterName: row.shareInviterName ? row.inviterName : null,
+        // Public links are shareable — never reveal who created them
+        inviterName: isPrivate && row.shareInviterName ? row.inviterName : null,
     }
 }

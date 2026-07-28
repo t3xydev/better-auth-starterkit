@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import {
     Select,
     SelectContent,
@@ -45,14 +46,18 @@ export function CreateInviteDialog() {
     const [role, setRole] = useState<"user" | "admin">("user")
     const [maxUses, setMaxUses] = useState("1")
     const [expiresIn, setExpiresIn] = useState("3600")
+    const [shareInviterName, setShareInviterName] = useState(false)
     const [publicResult, setPublicResult] = useState<string | null>(null)
     const [copied, setCopied] = useState(false)
+
+    const isPrivate = Boolean(email.trim())
 
     function reset() {
         setEmail("")
         setRole("user")
         setMaxUses("1")
         setExpiresIn("3600")
+        setShareInviterName(false)
         setPublicResult(null)
         setCopied(false)
     }
@@ -88,6 +93,7 @@ export function CreateInviteDialog() {
                     role,
                     maxUses: parsedMaxUses,
                     expiresIn: parsedExpiresIn,
+                    shareInviterName: isPrivate ? shareInviterName : false,
                 })
 
                 if (!result.status) {
@@ -210,6 +216,22 @@ export function CreateInviteDialog() {
                                 </Select>
                             </div>
                         </div>
+                        {isPrivate ? (
+                            <div className="flex items-center justify-between gap-4">
+                                <div className="space-y-0.5">
+                                    <Label htmlFor="share-inviter-name">Show your name</Label>
+                                    <p className="text-xs text-muted-foreground">
+                                        Welcome page says who sent the invite
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="share-inviter-name"
+                                    checked={shareInviterName}
+                                    onCheckedChange={setShareInviterName}
+                                    disabled={isPending}
+                                />
+                            </div>
+                        ) : null}
                         <DialogFooter>
                             <Button variant="outline" onClick={() => handleOpenChange(false)}>
                                 Cancel
