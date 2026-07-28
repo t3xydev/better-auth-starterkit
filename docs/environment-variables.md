@@ -54,7 +54,7 @@ Customize the app name, theme color, and asset URLs. All are optional.
 | `FAVICON_URL` | URL to a custom favicon. | `/icon.svg` |
 | `ICON_URL` | URL to an apple-touch-icon / PWA icon. | `/apple-touch-icon.png` |
 | `OPENGRAPH_IMAGE_URL` | URL to a custom Open Graph image for social previews. | Generated at runtime |
-| `LOGO_URL` | URL to a custom logo image. | None |
+| `LOGO_URL` | CDN URL for the header logo. When set, shown instead of the app name text. | None (shows `APPLICATION_NAME`) |
 
 ---
 
