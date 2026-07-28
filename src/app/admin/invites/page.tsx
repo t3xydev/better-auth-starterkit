@@ -2,6 +2,10 @@ import { listInvites } from "@/lib/actions/admin-invites"
 import { CreateInviteDialog } from "@/components/admin/create-invite-dialog"
 import { InviteTable } from "@/components/admin/invite-table"
 
+const inviteBaseUrl = (
+    process.env.BETTER_AUTH_URL || "http://localhost:3000"
+).replace(/\/$/, "")
+
 export default async function InvitesPage() {
     const invites = await listInvites()
 
@@ -16,7 +20,7 @@ export default async function InvitesPage() {
                 </div>
                 <CreateInviteDialog />
             </div>
-            <InviteTable invites={invites} />
+            <InviteTable invites={invites} inviteBaseUrl={inviteBaseUrl} />
         </div>
     )
 }

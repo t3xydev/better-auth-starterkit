@@ -56,8 +56,8 @@ export async function createInvite(data: {
     })
 }
 
-/** Deletes a pending invite via plugin cancel + cleanupInvitesOnDecision. */
-export async function deleteInvite(token: string): Promise<{ status: boolean; message: string }> {
+/** Soft-cancel a pending invite via the better-invite plugin. */
+export async function cancelInvite(token: string): Promise<{ status: boolean; message: string }> {
     await requireAdmin()
 
     return auth.api.cancelInvite({

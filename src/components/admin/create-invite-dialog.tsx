@@ -98,7 +98,7 @@ export function CreateInviteDialog() {
                     </DialogTitle>
                     <DialogDescription>
                         {publicResult
-                            ? "Copy this link or token to share. It will not be shown again here."
+                            ? "Copy this link to share. You can also reopen it later from the invites table."
                             : "Leave email empty for a public invite URL. With an email, only that address can accept."}
                     </DialogDescription>
                 </DialogHeader>

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Trash2 } from "lucide-react"
+import { Ban, Check, Copy, Link2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import {
     Table,
     TableBody,
@@ -23,7 +24,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { deleteInvite, type InviteRow } from "@/lib/actions/admin-invites"
+import { cancelInvite, type InviteRow } from "@/lib/actions/admin-invites"
 
 function statusVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
     switch (status) {
@@ -40,26 +41,49 @@ function statusVariant(status: string): "default" | "secondary" | "destructive" 
     }
 }
 
-export function InviteTable({ invites }: { invites: InviteRow[] }) {
+function inviteLink(baseUrl: string, token: string) {
+    return `${baseUrl}/activate-invite/${token}`
+}
+
+export function InviteTable({
+    invites,
+    inviteBaseUrl,
+}: {
+    invites: InviteRow[]
+    inviteBaseUrl: string
+}) {
     const router = useRouter()
     const [isPending, startTransition] = useTransition()
-    const [deleteTarget, setDeleteTarget] = useState<InviteRow | null>(null)
+    const [cancelTarget, setCancelTarget] = useState<InviteRow | null>(null)
+    const [linkTarget, setLinkTarget] = useState<InviteRow | null>(null)
+    const [copied, setCopied] = useState(false)
 
-    function handleDelete() {
-        if (!deleteTarget) return
+    const linkUrl = linkTarget
+        ? inviteLink(inviteBaseUrl, linkTarget.token)
+        : null
+
+    async function copyLink(url: string) {
+        await navigator.clipboard.writeText(url)
+        setCopied(true)
+        toast.success("Invite link copied")
+        setTimeout(() => setCopied(false), 2000)
+    }
+
+    function handleCancel() {
+        if (!cancelTarget) return
 
         startTransition(async () => {
             try {
-                const result = await deleteInvite(deleteTarget.token)
+                const result = await cancelInvite(cancelTarget.token)
                 if (!result.status) {
-                    toast.error(result.message || "Failed to delete invite")
+                    toast.error(result.message || "Failed to cancel invite")
                     return
                 }
-                toast.success("Invite deleted")
-                setDeleteTarget(null)
+                toast.success("Invite removed")
+                setCancelTarget(null)
                 router.refresh()
             } catch (error) {
-                toast.error(error instanceof Error ? error.message : "Failed to delete invite")
+                toast.error(error instanceof Error ? error.message : "Failed to cancel invite")
             }
         })
     }
@@ -82,7 +106,7 @@ export function InviteTable({ invites }: { invites: InviteRow[] }) {
                             <TableHead>Role</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Expires</TableHead>
-                            <TableHead className="w-24" />
+                            <TableHead className="w-48 text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -105,16 +129,29 @@ export function InviteTable({ invites }: { invites: InviteRow[] }) {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         {invite.status === "pending" ? (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-destructive hover:text-destructive"
-                                                disabled={isPending}
-                                                onClick={() => setDeleteTarget(invite)}
-                                            >
-                                                <Trash2 className="size-4" />
-                                                Delete
-                                            </Button>
+                                            <div className="flex justify-end gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    disabled={isPending}
+                                                    onClick={() => {
+                                                        setCopied(false)
+                                                        setLinkTarget(invite)
+                                                    }}
+                                                >
+                                                    <Link2 className="size-4" />
+                                                    Link
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    disabled={isPending}
+                                                    onClick={() => setCancelTarget(invite)}
+                                                >
+                                                    <Ban className="size-4" />
+                                                    Cancel
+                                                </Button>
+                                            </div>
                                         ) : null}
                                     </TableCell>
                                 </TableRow>
@@ -125,36 +162,77 @@ export function InviteTable({ invites }: { invites: InviteRow[] }) {
             </div>
 
             <Dialog
-                open={!!deleteTarget}
-                onOpenChange={(open) => !open && setDeleteTarget(null)}
+                open={!!linkTarget}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setLinkTarget(null)
+                        setCopied(false)
+                    }
+                }}
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Delete invite</DialogTitle>
+                        <DialogTitle>Invite link</DialogTitle>
                         <DialogDescription>
-                            Delete the invite for{" "}
+                            Share this link for{" "}
                             <strong>
-                                {deleteTarget?.email ||
-                                    deleteTarget?.emails?.join(", ") ||
+                                {linkTarget?.email ||
+                                    linkTarget?.emails?.join(", ") ||
+                                    "this public invite"}
+                            </strong>
+                            . It matches the URL sent in invite emails.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {linkUrl ? (
+                        <div className="flex gap-2">
+                            <Input readOnly value={linkUrl} className="font-mono text-xs" />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => copyLink(linkUrl)}
+                            >
+                                {copied ? (
+                                    <Check className="size-4" />
+                                ) : (
+                                    <Copy className="size-4" />
+                                )}
+                            </Button>
+                        </div>
+                    ) : null}
+                    <DialogFooter>
+                        <Button onClick={() => setLinkTarget(null)}>Done</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={!!cancelTarget}
+                onOpenChange={(open) => !open && setCancelTarget(null)}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Cancel invite</DialogTitle>
+                        <DialogDescription>
+                            Cancel the invite for{" "}
+                            <strong>
+                                {cancelTarget?.email ||
+                                    cancelTarget?.emails?.join(", ") ||
                                     "this public link"}
                             </strong>
-                            ? This cannot be undone.
+                            ? It will be removed and can no longer be used.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <Button
                             variant="outline"
-                            onClick={() => setDeleteTarget(null)}
+                            onClick={() => setCancelTarget(null)}
                             disabled={isPending}
                         >
-                            Cancel
+                            Keep
                         </Button>
-                        <Button
-                            variant="destructive"
-                            onClick={handleDelete}
-                            disabled={isPending}
-                        >
-                            {isPending ? "Deleting…" : "Delete"}
+                        <Button onClick={handleCancel} disabled={isPending}>
+                            {isPending ? "Canceling…" : "Cancel invite"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
