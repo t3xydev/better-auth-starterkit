@@ -1,18 +1,20 @@
 "use client"
 
-import { useTransition } from "react"
+import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { MoreHorizontal } from "lucide-react"
+import { Trash2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
 import {
     Table,
     TableBody,
@@ -21,7 +23,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { cancelInvite, type InviteRow } from "@/lib/actions/admin-invites"
+import { deleteInvite, type InviteRow } from "@/lib/actions/admin-invites"
 
 function statusVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
     switch (status) {
@@ -41,19 +43,23 @@ function statusVariant(status: string): "default" | "secondary" | "destructive" 
 export function InviteTable({ invites }: { invites: InviteRow[] }) {
     const router = useRouter()
     const [isPending, startTransition] = useTransition()
+    const [deleteTarget, setDeleteTarget] = useState<InviteRow | null>(null)
 
-    function handleCancel(token: string) {
+    function handleDelete() {
+        if (!deleteTarget) return
+
         startTransition(async () => {
             try {
-                const result = await cancelInvite(token)
+                const result = await deleteInvite(deleteTarget.token)
                 if (!result.status) {
-                    toast.error(result.message || "Failed to cancel invite")
+                    toast.error(result.message || "Failed to delete invite")
                     return
                 }
-                toast.success("Invite canceled")
+                toast.success("Invite deleted")
+                setDeleteTarget(null)
                 router.refresh()
             } catch (error) {
-                toast.error(error instanceof Error ? error.message : "Failed to cancel invite")
+                toast.error(error instanceof Error ? error.message : "Failed to delete invite")
             }
         })
     }
@@ -67,63 +73,92 @@ export function InviteTable({ invites }: { invites: InviteRow[] }) {
     }
 
     return (
-        <div className="rounded-lg border">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Expires</TableHead>
-                        <TableHead className="w-12" />
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {invites.map((invite) => {
-                        const email =
-                            invite.email ||
-                            invite.emails?.join(", ") ||
-                            "Public"
-                        return (
-                            <TableRow key={invite.id}>
-                                <TableCell className="font-medium">{email}</TableCell>
-                                <TableCell>{invite.role}</TableCell>
-                                <TableCell>
-                                    <Badge variant={statusVariant(invite.status)}>
-                                        {invite.status}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-muted-foreground">
-                                    {new Date(invite.expiresAt).toLocaleString()}
-                                </TableCell>
-                                <TableCell>
-                                    {invite.status === "pending" ? (
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    disabled={isPending}
-                                                >
-                                                    <MoreHorizontal className="size-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem
-                                                    className="text-destructive"
-                                                    onClick={() => handleCancel(invite.token)}
-                                                >
-                                                    Cancel
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    ) : null}
-                                </TableCell>
-                            </TableRow>
-                        )
-                    })}
-                </TableBody>
-            </Table>
-        </div>
+        <>
+            <div className="rounded-lg border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Expires</TableHead>
+                            <TableHead className="w-24" />
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {invites.map((invite) => {
+                            const email =
+                                invite.email ||
+                                invite.emails?.join(", ") ||
+                                "Public"
+                            return (
+                                <TableRow key={invite.id}>
+                                    <TableCell className="font-medium">{email}</TableCell>
+                                    <TableCell>{invite.role}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={statusVariant(invite.status)}>
+                                            {invite.status}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground">
+                                        {new Date(invite.expiresAt).toLocaleString()}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {invite.status === "pending" ? (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-destructive hover:text-destructive"
+                                                disabled={isPending}
+                                                onClick={() => setDeleteTarget(invite)}
+                                            >
+                                                <Trash2 className="size-4" />
+                                                Delete
+                                            </Button>
+                                        ) : null}
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        })}
+                    </TableBody>
+                </Table>
+            </div>
+
+            <Dialog
+                open={!!deleteTarget}
+                onOpenChange={(open) => !open && setDeleteTarget(null)}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete invite</DialogTitle>
+                        <DialogDescription>
+                            Delete the invite for{" "}
+                            <strong>
+                                {deleteTarget?.email ||
+                                    deleteTarget?.emails?.join(", ") ||
+                                    "this public link"}
+                            </strong>
+                            ? This cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setDeleteTarget(null)}
+                            disabled={isPending}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            disabled={isPending}
+                        >
+                            {isPending ? "Deleting…" : "Delete"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
     )
 }

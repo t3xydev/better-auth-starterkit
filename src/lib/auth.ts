@@ -102,6 +102,8 @@ export const auth = betterAuth({
             defaultRedirectToSignUp: "/auth/sign-up",
             defaultMaxUses: 1,
             defaultSenderResponse: "url",
+            // Cancel/reject removes the invite row instead of leaving a canceled record
+            cleanupInvitesOnDecision: true,
             // Only admins can create invites (prevents role escalation)
             canCreateInvite: async ({ inviterUser, invitedUser }) => {
                 if (inviterUser.role !== "admin") return false

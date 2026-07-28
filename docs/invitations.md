@@ -21,6 +21,7 @@ This starter uses the community [better-invite](https://www.better-invite.com/) 
 - **Public invites** — omit the email; the admin UI returns a shareable URL (`senderResponse: "url"`).
 - **Who can create** — only users with `role === "admin"`, and only for roles `user` or `admin`.
 - **Activation** — recipient must be signed in, then Accept or Reject on the activate page. Unauthenticated visitors are sent to sign-in with `redirectTo` back to the invite.
+- **Delete** — pending invites use the plugin `cancel` endpoint with `cleanupInvitesOnDecision: true`, which removes the row (not a soft “canceled” status).
 
 ## Admin flow
 
@@ -35,7 +36,7 @@ This starter uses the community [better-invite](https://www.better-invite.com/) 
 await authClient.invite.create({ email: "user@example.com", role: "user" })
 await authClient.invite.activate({ token })
 await authClient.invite.reject({ token })
-await authClient.invite.cancel({ token })
+await authClient.invite.cancel({ token }) // deletes when cleanupInvitesOnDecision is enabled
 await authClient.invite.list()
 ```
 
