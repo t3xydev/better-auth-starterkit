@@ -9,7 +9,7 @@ import { SignInView } from "@/components/sign-in-view"
 import { TwoFactorView } from "@/components/two-factor-view"
 import { db } from "@/database/db"
 import { users } from "@/database/schema"
-import { hasInviteTokenCookie, inviteOnly } from "@/lib/invite-only"
+import { getInviteTokenFromCookies, inviteOnly, isUsableInviteToken } from "@/lib/invite-only"
 
 export const dynamicParams = false
 
@@ -28,9 +28,10 @@ export default async function AuthPage({
 
     if (inviteOnly && path === "sign-up") {
         const cookieStore = await cookies()
-        const hasInvite = hasInviteTokenCookie(cookieStore)
+        const token = await getInviteTokenFromCookies(cookieStore)
+        const hasValidInvite = token ? await isUsableInviteToken(token) : false
         let bootstrap = false
-        if (!hasInvite) {
+        if (!hasValidInvite) {
             const [row] = await db.select({ value: count() }).from(users)
             bootstrap = (row?.value ?? 0) === 0
         }
@@ -38,7 +39,7 @@ export default async function AuthPage({
         return (
             <main className="container flex grow flex-col items-center justify-center gap-4 self-center p-4 md:p-6">
                 <InviteOnlySignUpView
-                    allowed={hasInvite || bootstrap}
+                    allowed={hasValidInvite || bootstrap}
                     appName={appName}
                 />
                 <p className="w-3xs text-center text-muted-foreground text-xs">
