@@ -95,11 +95,28 @@ export const auth = betterAuth({
             },
         }),
         invite({
-            async sendUserInvitation({ email, role, url }) {
+            // Custom UI activation flow — see https://www.better-invite.com/docs/examples
+            defaultCustomInviteUrl: `${authOrigin}/activate-invite/{token}`,
+            defaultRedirectAfterUpgrade: "/auth/invited",
+            defaultRedirectToSignIn: "/auth/sign-in",
+            defaultRedirectToSignUp: "/auth/sign-up",
+            defaultMaxUses: 1,
+            defaultSenderResponse: "url",
+            // Only admins can create invites (prevents role escalation)
+            canCreateInvite: async ({ inviterUser, invitedUser }) => {
+                if (inviterUser.role !== "admin") return false
+                // Admins may invite as user or admin only
+                return invitedUser.role === "user" || invitedUser.role === "admin"
+            },
+            async sendUserInvitation({ email, role, url, newAccount }) {
                 void sendEmail({
                     to: email,
-                    subject: "You've been invited",
-                    text: `You've been invited with the role "${role}". Accept the invitation: ${url}`,
+                    subject: newAccount
+                        ? "You've been invited"
+                        : "You've been invited to a new role",
+                    text: newAccount
+                        ? `You've been invited with the role "${role}". Accept the invitation: ${url}`
+                        : `You've been invited to upgrade to the role "${role}". Accept: ${url}`,
                 })
             },
         }) as unknown as FixErrorCodes<ReturnType<typeof invite>>,

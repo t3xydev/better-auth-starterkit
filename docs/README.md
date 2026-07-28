@@ -18,6 +18,7 @@ This kit is a fork of [daveyplate/better-auth-nextjs-starter](https://github.com
 |---|---|
 | [Environment variables](./environment-variables.md) | Configuring secrets, SMTP, branding, analytics |
 | [Admin panel](./admin-panel.md) | Creating and managing OAuth / OIDC clients |
+| [Invitations](./invitations.md) | better-invite setup, activate UI, admin invites |
 | [TypeScript: better-invite](./typescript-better-invite.md) | Plugin type shim used in this repo |
 
 ## Useful paths
@@ -27,6 +28,8 @@ This kit is a fork of [daveyplate/better-auth-nextjs-starter](https://github.com
 | `/auth/sign-in` | Sign-in UI |
 | `/account/*` | Account settings (Better Auth UI) |
 | `/admin/clients` | OAuth client admin (admin role required) |
+| `/admin/invites` | Create and manage user invites (admin role required) |
+| `/activate-invite/[token]` | Accept or reject an invite |
 | `/api/auth/*` | Better Auth API |
 | `/api/health` | Liveness + DB connectivity |
 | `/.well-known/openid-configuration` | OIDC discovery |

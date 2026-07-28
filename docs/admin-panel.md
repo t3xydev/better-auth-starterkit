@@ -34,6 +34,8 @@ Once promoted, a gear icon appears in the header. Click it or navigate directly 
 
 Non-admin users are redirected away automatically.
 
+Also available: **Invites** at `/admin/invites` — see [invitations.md](./invitations.md).
+
 ---
 
 ## Features

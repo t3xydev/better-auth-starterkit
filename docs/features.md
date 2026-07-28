@@ -12,7 +12,7 @@ Configuration lives primarily in [`src/lib/auth.ts`](../src/lib/auth.ts) and [`s
 | Passkeys | `@better-auth/passkey` | WebAuthn; RP ID derived from `BETTER_AUTH_URL` |
 | Two-factor (TOTP) | `twoFactor` | Challenge UI at `/auth/two-factor` |
 | Nostr | `better-auth-nostr` + custom link plugin | Sign-in and account key linking (`/account/nostr`) |
-| Invitations | `better-invite` | Email invite flow with roles |
+| Invitations | `better-invite` | Admin create/list UI, email + public invites, `/activate-invite/[token]` accept flow — [guide](./invitations.md) |
 
 ## OAuth 2.1 / OpenID Connect provider
 

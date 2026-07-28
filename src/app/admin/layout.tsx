@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Admin</h1>
                     <p className="text-sm text-muted-foreground">
-                        Manage OAuth clients and internal applications
+                        Manage OAuth clients, invites, and internal applications
                     </p>
                 </div>
                 <nav className="flex items-center gap-4 text-sm">
@@ -27,6 +27,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
                         className="font-medium text-foreground transition-colors hover:text-primary"
                     >
                         Clients
+                    </Link>
+                    <Link
+                        href="/admin/invites"
+                        className="font-medium text-foreground transition-colors hover:text-primary"
+                    >
+                        Invites
                     </Link>
                 </nav>
             </div>
