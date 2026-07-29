@@ -66,7 +66,7 @@ JWT issuer defaults to `BETTER_AUTH_URL` (overridable with `OAUTH_ISSUER` / `OAU
 
 ## Email
 
-Delivery order: SMTP (when `SMTP_*` is set) → Better Auth Infra (when `BETTER_AUTH_API_KEY` is set) → console log.
+Delivery order: Resend HTTPS API (when `SMTP_HOST` is Resend / `SMTP_PASS` starts with `re_`) → SMTP (other providers) → Better Auth Infra (`BETTER_AUTH_API_KEY`) → console log. Resend uses HTTPS because outbound SMTP ports (587/465) often time out on local networks and PaaS.
 
 Used for:
 

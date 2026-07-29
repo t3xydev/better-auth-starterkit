@@ -72,17 +72,18 @@ Customize the app name, theme color, and asset URLs. All are optional.
 
 Delivery preference (first match wins):
 
-1. **SMTP** — when all `SMTP_*` variables below are set  
-2. **Better Auth Infra** — when `BETTER_AUTH_API_KEY` is set (Pro+ transactional email)  
-3. **Console** — logs the message (local/dev fallback)
+1. **Resend HTTPS** — when `SMTP_*` is set and the host is `smtp.resend.com` (or `SMTP_PASS` starts with `re_`). Sends via `https://api.resend.com` — preferred because SMTP ports 587/465 often hit `ETIMEDOUT` locally and on Railway.  
+2. **SMTP** — other providers when all `SMTP_*` variables below are set (nodemailer; use `465` for implicit TLS or `587` for STARTTLS)  
+3. **Better Auth Infra** — when `BETTER_AUTH_API_KEY` is set (Pro+ transactional email)  
+4. **Console** — logs the message (local/dev fallback)
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SMTP_HOST` | SMTP server hostname (e.g. `smtp.resend.com`, `smtp.gmail.com`). | None (disabled) |
-| `SMTP_PORT` | SMTP server port. Use `465` (implicit TLS) with Resend; `587` (STARTTLS) is the common alternative. | `587` |
-| `SMTP_USER` | SMTP authentication username. | None (disabled) |
-| `SMTP_PASS` | SMTP authentication password or API key. | None (disabled) |
-| `SMTP_FROM` | Sender address (e.g. `"App Name <noreply@example.com>"`). | None (disabled) |
+| `SMTP_HOST` | SMTP server hostname (e.g. `smtp.resend.com`, `smtp.gmail.com`). Resend is detected and routed over HTTPS. | None (disabled) |
+| `SMTP_PORT` | SMTP server port (ignored for Resend HTTPS). For other providers: `465` or `587`. | `587` |
+| `SMTP_USER` | SMTP authentication username (`resend` for Resend). | None (disabled) |
+| `SMTP_PASS` | SMTP password or API key (Resend: `re_…`). | None (disabled) |
+| `SMTP_FROM` | Sender address (e.g. `"App Name <noreply@example.com>"`). Domain must be verified with the provider. | None (disabled) |
 
 ---
 
