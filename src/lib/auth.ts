@@ -65,9 +65,15 @@ export const auth = betterAuth({
     emailVerification: {
         sendVerificationEmail: async ({ user, url }) => {
             void sendEmail({
+                template: "verify-email",
                 to: user.email,
                 subject: "Verify your email address",
                 text: `Click the link to verify your email: ${url}`,
+                variables: {
+                    verificationUrl: url,
+                    userEmail: user.email,
+                    userName: user.name,
+                },
             })
         },
         sendOnSignUp: true,
@@ -77,9 +83,15 @@ export const auth = betterAuth({
         enabled: true,
         sendResetPassword: async ({ user, url }) => {
             void sendEmail({
+                template: "reset-password",
                 to: user.email,
                 subject: "Reset your password",
                 text: `Click the link to reset your password: ${url}`,
+                variables: {
+                    resetLink: url,
+                    userEmail: user.email,
+                    userName: user.name,
+                },
             })
         },
     },
@@ -130,9 +142,17 @@ export const auth = betterAuth({
                       async sendInvitationEmail(data) {
                           const inviteLink = `${authOrigin}/auth/accept-invitation?invitationId=${data.id}`
                           void sendEmail({
+                              template: "invitation",
                               to: data.email,
                               subject: `Join ${data.organization.name}`,
                               text: `${data.inviter.user.name} invited you to join ${data.organization.name}. Accept the invitation: ${inviteLink}`,
+                              variables: {
+                                  inviteLink,
+                                  inviterName: data.inviter.user.name,
+                                  inviterEmail: data.inviter.user.email,
+                                  organizationName: data.organization.name,
+                                  role: data.role,
+                              },
                           })
                       },
                   }),
@@ -157,7 +177,9 @@ export const auth = betterAuth({
                 return invitedUser.role === "user" || invitedUser.role === "admin"
             },
             async sendUserInvitation({ email, role, url, newAccount }) {
+                const appName = process.env.APPLICATION_NAME || "Better Auth StarterKit"
                 void sendEmail({
+                    template: "application-invite",
                     to: email,
                     subject: newAccount
                         ? "You've been invited"
@@ -165,6 +187,12 @@ export const auth = betterAuth({
                     text: newAccount
                         ? `You've been invited with the role "${role}". Accept the invitation: ${url}`
                         : `You've been invited to upgrade to the role "${role}". Accept: ${url}`,
+                    variables: {
+                        inviteLink: url,
+                        inviterName: appName,
+                        inviterEmail: email,
+                        inviteeEmail: email,
+                    },
                 })
             },
         }) as unknown as FixErrorCodes<ReturnType<typeof invite>>,

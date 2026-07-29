@@ -26,7 +26,7 @@ These variables must be set for the application to start.
 
 | Variable | Description |
 |----------|-------------|
-| `BETTER_AUTH_API_KEY` | API key for the Better Auth Dash plugin. Required for accessing the built-in Better Auth dashboard at `/api/auth/admin`. |
+| `BETTER_AUTH_API_KEY` | API key for the Better Auth Dash plugin and Infra email. Required for `/api/auth/admin`. Also used to send mail when SMTP is not configured (Pro+). |
 | `BETTER_AUTH_TRUSTED_ORIGINS` | Comma-separated list of additional trusted origins for CSRF and redirect validation (e.g. `https://app.example.com,https://admin.example.com`). `BETTER_AUTH_URL` is always included. Wildcards like `https://*.example.com` are supported. |
 
 ---
@@ -68,9 +68,13 @@ Customize the app name, theme color, and asset URLs. All are optional.
 
 ---
 
-## SMTP (Email)
+## Email
 
-Optional. When all required SMTP variables are set, emails (password reset, email verification, invitations) are sent via SMTP. Otherwise they are logged to the console.
+Delivery preference (first match wins):
+
+1. **SMTP** — when all `SMTP_*` variables below are set  
+2. **Better Auth Infra** — when `BETTER_AUTH_API_KEY` is set (Pro+ transactional email)  
+3. **Console** — logs the message (local/dev fallback)
 
 | Variable | Description | Default |
 |----------|-------------|---------|

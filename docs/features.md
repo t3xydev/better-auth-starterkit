@@ -66,7 +66,7 @@ JWT issuer defaults to `BETTER_AUTH_URL` (overridable with `OAUTH_ISSUER` / `OAU
 
 ## Email
 
-When all SMTP variables are set (`SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`), mail is sent over SMTP. Otherwise messages are logged to the console — convenient for local development.
+Delivery order: SMTP (when `SMTP_*` is set) → Better Auth Infra (when `BETTER_AUTH_API_KEY` is set) → console log.
 
 Used for:
 
