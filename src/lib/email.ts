@@ -17,11 +17,16 @@ const infraEnabled = !!process.env.BETTER_AUTH_API_KEY
 
 const transporter = smtpEnabled
     ? nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: SMTP_PORT,
-        secure: SMTP_PORT === 465,
-        auth: { user: SMTP_USER, pass: SMTP_PASS },
-    })
+          host: SMTP_HOST,
+          port: SMTP_PORT,
+          secure: SMTP_PORT === 465,
+          auth: { user: SMTP_USER, pass: SMTP_PASS },
+          connectionTimeout: 15_000,
+          greetingTimeout: 15_000,
+          socketTimeout: 30_000,
+          family: 4,
+          tls: { servername: SMTP_HOST },
+      })
     : null
 
 if (smtpEnabled) {

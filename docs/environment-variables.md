@@ -78,8 +78,8 @@ Delivery preference (first match wins):
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SMTP_HOST` | SMTP server hostname (e.g. `smtp.gmail.com`, `smtp.resend.com`). | None (disabled) |
-| `SMTP_PORT` | SMTP server port. | `587` |
+| `SMTP_HOST` | SMTP server hostname (e.g. `smtp.resend.com`, `smtp.gmail.com`). | None (disabled) |
+| `SMTP_PORT` | SMTP server port. Use `465` (implicit TLS) with Resend; `587` (STARTTLS) is the common alternative. | `587` |
 | `SMTP_USER` | SMTP authentication username. | None (disabled) |
 | `SMTP_PASS` | SMTP authentication password or API key. | None (disabled) |
 | `SMTP_FROM` | Sender address (e.g. `"App Name <noreply@example.com>"`). | None (disabled) |
