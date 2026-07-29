@@ -3,6 +3,7 @@
 import { AuthView, SignInForm } from "@daveyplate/better-auth-ui"
 import { useEffect, useState } from "react"
 
+import { AuthFormValidationToast } from "@/components/auth-form-validation-toast"
 import { NostrSignInButton } from "@/components/nostr-sign-in-button"
 import {
     Card,
@@ -38,7 +39,9 @@ export function SignInView({ appName }: { appName?: string }) {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <SignInForm localization={{}} />
+                    <AuthFormValidationToast>
+                        <SignInForm localization={{}} />
+                    </AuthFormValidationToast>
                     {hasNostr ? <NostrSignInButton /> : null}
                 </CardContent>
                 <CardFooter className="justify-center">
@@ -56,5 +59,9 @@ export function SignInView({ appName }: { appName?: string }) {
         </div>
     ) : undefined
 
-    return <AuthView path="sign-in" cardFooter={footer} />
+    return (
+        <AuthFormValidationToast>
+            <AuthView path="sign-in" cardFooter={footer} />
+        </AuthFormValidationToast>
+    )
 }

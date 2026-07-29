@@ -3,6 +3,7 @@
 import { SignUpForm } from "@daveyplate/better-auth-ui"
 import Link from "next/link"
 
+import { AuthFormValidationToast } from "@/components/auth-form-validation-toast"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -51,7 +52,9 @@ export function InviteOnlySignUpView({
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <SignUpForm localization={{}} redirectTo="/auth/invited" />
+                <AuthFormValidationToast>
+                    <SignUpForm localization={{}} redirectTo="/auth/invited" />
+                </AuthFormValidationToast>
             </CardContent>
             <CardFooter className="justify-center">
                 <p className="text-center text-sm text-muted-foreground">

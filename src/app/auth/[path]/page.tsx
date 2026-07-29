@@ -4,6 +4,7 @@ import { count } from "drizzle-orm"
 import { cookies } from "next/headers"
 import Link from "next/link"
 
+import { AuthFormValidationToast } from "@/components/auth-form-validation-toast"
 import { InviteOnlySignUpView } from "@/components/invite-only-sign-up-view"
 import { SignInView } from "@/components/sign-in-view"
 import { TwoFactorView } from "@/components/two-factor-view"
@@ -64,11 +65,15 @@ export default async function AuthPage({
     return (
         <main className="container flex grow flex-col items-center justify-center gap-4 self-center p-4 md:p-6">
             {path === "two-factor" ? (
-                <TwoFactorView />
+                <AuthFormValidationToast>
+                    <TwoFactorView />
+                </AuthFormValidationToast>
             ) : path === "sign-in" ? (
                 <SignInView appName={appName} />
             ) : (
-                <AuthView path={path} />
+                <AuthFormValidationToast>
+                    <AuthView path={path} />
+                </AuthFormValidationToast>
             )}
 
             {!["callback", "sign-out"].includes(path) && (

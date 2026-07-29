@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation"
 import { ThemeProvider } from "next-themes"
 import type { ReactNode } from "react"
 import { Suspense } from "react"
-import { Toaster } from "sonner"
-
 import { authClient } from "@/lib/auth-client"
 import { organizationsEnabled } from "@/lib/organizations"
 import { AuthDevtools } from "@/components/better-auth-devtools"
@@ -15,6 +13,7 @@ import { DbscInit } from "@/components/dbsc-init"
 import { PHProvider } from "@/components/posthog-provider"
 import { PostHogIdentify } from "@/components/posthog-identify"
 import { PostHogPageView } from "@/components/posthog-page-view"
+import { Toaster } from "@/components/ui/sonner"
 
 export function Providers({ children }: { children: ReactNode }) {
     const router = useRouter()
@@ -46,6 +45,11 @@ export function Providers({ children }: { children: ReactNode }) {
                     twoFactor={["totp"]}
                     passkey
                     organization={organizationsEnabled || undefined}
+                    credentials={{
+                        passwordValidation: {
+                            minLength: 8,
+                        },
+                    }}
                     localization={{
                         EMAIL_PLACEHOLDER: "",
                         PASSWORD_PLACEHOLDER: "",
@@ -63,7 +67,7 @@ export function Providers({ children }: { children: ReactNode }) {
                     {children}
 
                     <AuthDevtools />
-                    <Toaster />
+                    <Toaster richColors closeButton position="top-center" />
                 </AuthUIProvider>
             </ThemeProvider>
         </PHProvider>
