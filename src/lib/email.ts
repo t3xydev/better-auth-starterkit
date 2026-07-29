@@ -4,6 +4,7 @@ import {
     type EmailTemplateVariables,
 } from "@better-auth/infra"
 import nodemailer from "nodemailer"
+import type SMTPTransport from "nodemailer/lib/smtp-transport"
 
 const SMTP_HOST = process.env.SMTP_HOST
 const SMTP_PORT = Number(process.env.SMTP_PORT) || 587
@@ -15,19 +16,20 @@ const APP_NAME = process.env.APPLICATION_NAME || "Better Auth StarterKit"
 export const smtpEnabled = !!(SMTP_HOST && SMTP_USER && SMTP_PASS && SMTP_FROM)
 const infraEnabled = !!process.env.BETTER_AUTH_API_KEY
 
-const transporter = smtpEnabled
-    ? nodemailer.createTransport({
+const smtpOptions: SMTPTransport.Options | null = smtpEnabled
+    ? {
           host: SMTP_HOST,
           port: SMTP_PORT,
           secure: SMTP_PORT === 465,
-          auth: { user: SMTP_USER, pass: SMTP_PASS },
+          auth: { user: SMTP_USER!, pass: SMTP_PASS! },
           connectionTimeout: 15_000,
           greetingTimeout: 15_000,
           socketTimeout: 30_000,
-          family: 4,
           tls: { servername: SMTP_HOST },
-      })
+      }
     : null
+
+const transporter = smtpOptions ? nodemailer.createTransport(smtpOptions) : null
 
 if (smtpEnabled) {
     console.log("[Email] SMTP enabled:", SMTP_HOST, "port", SMTP_PORT)
