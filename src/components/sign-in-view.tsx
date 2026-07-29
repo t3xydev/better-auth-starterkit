@@ -1,10 +1,11 @@
 "use client"
 
-import { AuthView, SignInForm } from "@daveyplate/better-auth-ui"
-import { useEffect, useState } from "react"
+import { AuthUIContext, AuthView, SignInForm } from "@daveyplate/better-auth-ui"
+import { useContext, useEffect, useState } from "react"
 
 import { AuthFormValidationToast } from "@/components/auth-form-validation-toast"
 import { NostrSignInButton } from "@/components/nostr-sign-in-button"
+import { Passkey2faButton } from "@/components/passkey-2fa-button"
 import {
     Card,
     CardContent,
@@ -13,15 +14,27 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import { inviteOnly } from "@/lib/invite-only"
 
 export function SignInView({ appName }: { appName?: string }) {
+    const { localization } = useContext(AuthUIContext)
     const [hasNostr, setHasNostr] = useState(false)
+    const [passkeyAvailable, setPasskeyAvailable] = useState(false)
     const brand = appName || "Better Auth StarterKit"
 
     useEffect(() => {
         if (typeof window === "undefined") return
         if (window.nostr) setHasNostr(true)
+
+        if (!window.PublicKeyCredential) return
+        const check = PublicKeyCredential
+            .isUserVerifyingPlatformAuthenticatorAvailable?.()
+        if (check) {
+            check.then(setPasskeyAvailable).catch(() => setPasskeyAvailable(false))
+        } else {
+            setPasskeyAvailable(true)
+        }
     }, [])
 
     if (inviteOnly) {
@@ -42,7 +55,19 @@ export function SignInView({ appName }: { appName?: string }) {
                     <AuthFormValidationToast>
                         <SignInForm localization={{}} />
                     </AuthFormValidationToast>
-                    {hasNostr ? <NostrSignInButton /> : null}
+                    {passkeyAvailable || hasNostr ? (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center gap-2">
+                                <Separator className="!w-auto grow" />
+                                <span className="shrink-0 text-muted-foreground text-sm">
+                                    {localization.OR_CONTINUE_WITH}
+                                </span>
+                                <Separator className="!w-auto grow" />
+                            </div>
+                            {passkeyAvailable ? <Passkey2faButton /> : null}
+                            {hasNostr ? <NostrSignInButton /> : null}
+                        </div>
+                    ) : null}
                 </CardContent>
                 <CardFooter className="justify-center">
                     <p className="text-center text-sm text-muted-foreground">
