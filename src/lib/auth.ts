@@ -16,6 +16,10 @@ import { nostrLink } from "@/lib/plugins/nostr-link"
 import { db } from "@/database/db"
 import * as schema from "@/database/schema"
 import { sendEmail } from "./email"
+import {
+    allowDynamicClientRegistration,
+    allowUnauthenticatedClientRegistration,
+} from "./dynamic-client-registration"
 import { INVITE_TOKEN_COOKIE, inviteOnly } from "./invite-only"
 import { isUsableInviteToken } from "./invite-only-server"
 import { organizationsEnabled } from "./organizations"
@@ -215,8 +219,8 @@ export const auth = betterAuth({
             validAudiences: [
                 process.env.BETTER_AUTH_URL || process.env.OAUTH_AUDIENCE || "http://localhost:3000",
             ],
-            allowDynamicClientRegistration: true,
-            allowUnauthenticatedClientRegistration: false,
+            allowDynamicClientRegistration,
+            allowUnauthenticatedClientRegistration,
             allowPublicClientPrelogin: false,
             clientRegistrationAllowedScopes: [...ALLOWED_SCOPES],
             rateLimit: {

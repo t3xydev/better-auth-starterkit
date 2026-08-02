@@ -39,6 +39,8 @@ These configure the OAuth 2.1 / OpenID Connect provider plugin.
 |----------|-------------|---------|
 | `OAUTH_ISSUER` | Override the JWT `iss` claim. Falls back to `BETTER_AUTH_URL`. | `BETTER_AUTH_URL` |
 | `OAUTH_AUDIENCE` | Override the valid audience list for access tokens. Falls back to `BETTER_AUTH_URL`. | `BETTER_AUTH_URL` |
+| `ALLOW_DYNAMIC_CLIENT_REGISTRATION` | Enable OAuth dynamic client registration (`/oauth2/register`) for authenticated users. Set to `"true"` to enable. | `false` |
+| `ALLOW_UNAUTHENTICATED_CLIENT_REGISTRATION` | Allow public clients to register without a session (useful for MCP). Requires DCR to be enabled. Set to `"true"` to enable. | `false` |
 
 ---
 

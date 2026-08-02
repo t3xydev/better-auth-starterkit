@@ -30,7 +30,7 @@ This app can act as an **authorization server** for your other apps.
 
 **Default scopes:** `openid`, `profile`, `email`, `offline_access`
 
-Dynamic client registration is enabled for authenticated users; public unauthenticated registration is off by default.
+Dynamic client registration is off by default. Set `ALLOW_DYNAMIC_CLIENT_REGISTRATION=true` to enable it for authenticated users. Public unauthenticated registration stays off unless `ALLOW_UNAUTHENTICATED_CLIENT_REGISTRATION=true`.
 
 ### Common endpoints
 
