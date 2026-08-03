@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://betterauth-starterkit.up.railway.app/"><img src="https://img.shields.io/badge/live%20demo-Railway-0B1220?style=flat-square&logo=railway&logoColor=white" alt="Live demo" /></a>
+  <a href="https://betterauth-starterkit.t3xy.dev/"><img src="https://img.shields.io/badge/live%20demo-t3xy.dev-0B1220?style=flat-square" alt="Live demo" /></a>
   <a href="#quick-start"><img src="https://img.shields.io/badge/quick%20start-3%20commands-0d9488?style=flat-square" alt="Quick start" /></a>
   <a href="https://better-auth.com"><img src="https://img.shields.io/badge/Better%20Auth-1.6-black?style=flat-square" alt="Better Auth" /></a>
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-15-black?style=flat-square" alt="Next.js" /></a>
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <a href="https://betterauth-starterkit.up.railway.app/"><strong>Live demo</strong></a> ·
+  <a href="https://betterauth-starterkit.t3xy.dev/"><strong>Live demo</strong></a> ·
   <a href="https://t3xy.dev">t3xy.dev</a> ·
   <a href="docs/getting-started.md">Getting started</a> ·
   <a href="docs/features.md">Features</a> ·
@@ -38,7 +38,7 @@ Most auth starters stop at “sign in works locally.” This kit is built for **
 
 Clone it, set three variables, migrate, deploy. Extend the plugins as you grow.
 
-**Live demo:** [https://betterauth-starterkit.up.railway.app/](https://betterauth-starterkit.up.railway.app/)
+**Live demo:** [https://betterauth-starterkit.t3xy.dev/](https://betterauth-starterkit.t3xy.dev/)
 
 ## What’s included
 

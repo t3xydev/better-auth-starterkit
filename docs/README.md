@@ -4,7 +4,7 @@ Guides for running and extending **Better Auth StarterKit** — a deploy-ready B
 
 This kit is a fork of [daveyplate/better-auth-nextjs-starter](https://github.com/daveyplate/better-auth-nextjs-starter). Maintained at [t3xy.dev](https://t3xy.dev). See [Credits](../README.md#credits) in the README.
 
-**Live demo:** [https://betterauth-starterkit.up.railway.app/](https://betterauth-starterkit.up.railway.app/)
+**Live demo:** [https://betterauth-starterkit.t3xy.dev/](https://betterauth-starterkit.t3xy.dev/)
 
 ## Start here
 

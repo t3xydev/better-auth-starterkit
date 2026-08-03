@@ -2,7 +2,7 @@
 
 Spin up a local Better Auth server in a few minutes.
 
-Prefer to click around first? Try the **[live demo](https://betterauth-starterkit.up.railway.app/)**.
+Prefer to click around first? Try the **[live demo](https://betterauth-starterkit.t3xy.dev/)**.
 
 ## Prerequisites
 
