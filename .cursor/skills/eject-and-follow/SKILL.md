@@ -43,11 +43,24 @@ git checkout -B app/main kit/main
 git push -u origin kit/main app/main
 ```
 
-Then:
+Then, **on `app/main` only** (never on `kit/main`):
 
-1. Set the default working branch to **`app/main`**.
-2. Tell the user: kit syncs happen on **`kit/main`**; features land on **`app/main`**.
-3. Do **not** rewrite `kit/main` with product commits.
+1. Delete the starterkit identity rule so product agents stop treating the fork as the kit:
+
+   ```bash
+   git rm .cursor/rules/project-identity.mdc
+   git commit -m "$(cat <<'EOF'
+   chore: drop starterkit project-identity rule after eject
+
+   EOF
+   )"
+   ```
+
+2. Set the default working branch to **`app/main`**.
+3. Tell the user: kit syncs happen on **`kit/main`**; features land on **`app/main`**.
+4. Do **not** rewrite `kit/main` with product commits.
+
+If `.cursor/rules/project-identity.mdc` reappears when merging kit → app, prefer **app** (keep it deleted) unless the user wants the kit rule back.
 
 Optional: point GitHub default branch to `app/main`.
 
@@ -95,11 +108,14 @@ When merging kit → app:
 1. Prefer **app** for files under `src/modules/` and clear product overrides.
 2. Prefer **kit** for starter core you have not customized.
 3. For shared composition files (`src/lib/auth.ts`, layouts, deploy config): keep **thin wiring**; move custom logic out (see skill `modular-dev`).
-4. Re-run `pnpm deploy:sync` after kit changes touch `deploy/config.ts`.
+4. Prefer **app** for `.cursor/rules/project-identity.mdc` — keep it deleted after eject.
+5. Re-run `pnpm deploy:sync` after kit changes touch `deploy/config.ts`.
 
 ## What “ejected” means here
 
-Eject is **branch separation**, not deleting kit files. You keep following upstream via `kit/main`. Full hard-fork (drop remotes / never sync) only if the user asks explicitly.
+Eject is **branch separation** plus dropping starterkit-only agent identity on the product branch. You keep following upstream via `kit/main`. Full hard-fork (drop remotes / never sync) only if the user asks explicitly.
+
+On eject, remove `.cursor/rules/project-identity.mdc` from **`app/main`**. Leave it on **`kit/main`** so upstream stays intact.
 
 ## Checklist
 
@@ -108,8 +124,10 @@ Eject / follow:
 - [ ] upstream remote present (or origin is the kit)
 - [ ] kit/main tracks starter
 - [ ] app/main is the product branch
+- [ ] .cursor/rules/project-identity.mdc removed on app/main
 - [ ] product commits are not on kit/main
 - [ ] sync uses app/sync/* then merge to app/main
+- [ ] kit→app conflicts: keep project-identity.mdc deleted on app
 - [ ] no force-push unless user requested
 ```
 
