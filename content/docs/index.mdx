@@ -1,0 +1,46 @@
+---
+title: "Documentation"
+description: "Guides for running and extending Better Auth StarterKit."
+---
+
+Guides for running and extending **Better Auth StarterKit** — your own Better Auth–based OpenID / OAuth **identity server** on Next.js + PostgreSQL.
+
+This kit is a fork of [daveyplate/better-auth-nextjs-starter](https://github.com/daveyplate/better-auth-nextjs-starter). Maintained at [t3xy.dev](https://t3xy.dev). See [Credits](https://github.com/t3xydev/better-auth-starterkit/blob/main/README.md#credits) in the README.
+
+**Live demo:** [https://betterauth-starterkit.t3xy.dev/](https://betterauth-starterkit.t3xy.dev/)
+
+## Start here
+
+1. [Product](/docs/product) — IdP framing, dual usage modes, roadmap identity methods  
+2. [Getting started](/docs/getting-started) — install, env, migrate, run locally  
+3. [Features](/docs/features) — what ships out of the box  
+4. [Deployment](/docs/deployment) — synced targets (Railway, Dokploy, Cloudflare) + classic hosts  
+
+## Reference
+
+| Doc | When you need it |
+|---|---|
+| [Product](/docs/product) | What this kit is for (accounts-style IdP vs extend template) |
+| [Environment variables](/docs/environment-variables) | Configuring secrets, SMTP, branding, analytics |
+| [Admin panel](/docs/admin-panel) | Creating and managing OAuth / OIDC clients |
+| [Client trust model](/docs/client-trust-model) | Trust tiers, DCR defaults, scope gating |
+| [Invitations](/docs/invitations) | better-invite setup, activate UI, admin invites |
+| [TypeScript: better-invite](/docs/typescript-better-invite) | Plugin type shim used in this repo |
+
+## Useful paths
+
+| Path | Purpose |
+|---|---|
+| `/auth/sign-in` | Sign-in UI |
+| `/account/*` | Account settings (Better Auth UI) |
+| `/admin/clients` | OAuth client admin (admin role required) |
+| `/admin/invites` | Create and manage user invites (admin role required) |
+| `/invite/activate/[token]` | Invite welcome page; accept or reject |
+| `/api/auth/*` | Better Auth API |
+| `/api/health` | Liveness + DB connectivity |
+| `/.well-known/openid-configuration` | OIDC discovery |
+| `/api/auth/reference` | OpenAPI reference (openAPI plugin) |
+
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/t3xydev/better-auth-starterkit/blob/main/CONTRIBUTING.md).

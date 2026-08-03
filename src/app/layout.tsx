@@ -5,6 +5,7 @@ import type { ReactNode } from "react"
 import "@/styles/globals.css"
 
 import { Header } from "@/components/header"
+import { SiteChrome } from "@/components/site-chrome"
 import { Providers } from "./providers"
 
 const geistSans = Geist({
@@ -92,9 +93,7 @@ export default function RootLayout({
                     }}
                 />
                 <Providers>
-                    <Header />
-
-                    {children}
+                    <SiteChrome header={<Header />}>{children}</SiteChrome>
                 </Providers>
             </body>
         </html>

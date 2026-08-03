@@ -1,6 +1,7 @@
 "use client"
 
 import { AuthUIProvider } from "@daveyplate/better-auth-ui"
+import { RootProvider } from "fumadocs-ui/provider/next"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ThemeProvider } from "next-themes"
@@ -26,49 +27,51 @@ export function Providers({ children }: { children: ReactNode }) {
                 enableSystem
                 disableTransitionOnChange
             >
-                <AuthUIProvider
-                    authClient={authClient}
-                    navigate={router.push}
-                    replace={router.replace}
-                    onSessionChange={() => {
-                        router.refresh()
-                        void authClient.getSession().then(({ data }) => {
-                            if (data?.session) {
-                                void window.initDbsc?.()
-                            } else {
-                                void window.clearBoundKey?.()
-                            }
-                        })
-                    }}
-                    Link={Link}
-                    redirectTo="/account/settings"
-                    twoFactor={["totp"]}
-                    passkey
-                    organization={organizationsEnabled || undefined}
-                    credentials={{
-                        passwordValidation: {
-                            minLength: 8,
-                        },
-                    }}
-                    localization={{
-                        EMAIL_PLACEHOLDER: "",
-                        PASSWORD_PLACEHOLDER: "",
-                        CONFIRM_PASSWORD_PLACEHOLDER: "",
-                        CURRENT_PASSWORD_PLACEHOLDER: "",
-                        NEW_PASSWORD_PLACEHOLDER: "",
-                    }}
-                >
-                    <DbscInit />
-                    <Suspense fallback={null}>
-                        <PostHogPageView />
-                    </Suspense>
-                    <PostHogIdentify />
+                <RootProvider theme={{ enabled: false }}>
+                    <AuthUIProvider
+                        authClient={authClient}
+                        navigate={router.push}
+                        replace={router.replace}
+                        onSessionChange={() => {
+                            router.refresh()
+                            void authClient.getSession().then(({ data }) => {
+                                if (data?.session) {
+                                    void window.initDbsc?.()
+                                } else {
+                                    void window.clearBoundKey?.()
+                                }
+                            })
+                        }}
+                        Link={Link}
+                        redirectTo="/account/settings"
+                        twoFactor={["totp"]}
+                        passkey
+                        organization={organizationsEnabled || undefined}
+                        credentials={{
+                            passwordValidation: {
+                                minLength: 8,
+                            },
+                        }}
+                        localization={{
+                            EMAIL_PLACEHOLDER: "",
+                            PASSWORD_PLACEHOLDER: "",
+                            CONFIRM_PASSWORD_PLACEHOLDER: "",
+                            CURRENT_PASSWORD_PLACEHOLDER: "",
+                            NEW_PASSWORD_PLACEHOLDER: "",
+                        }}
+                    >
+                        <DbscInit />
+                        <Suspense fallback={null}>
+                            <PostHogPageView />
+                        </Suspense>
+                        <PostHogIdentify />
 
-                    {children}
+                        {children}
 
-                    <AuthDevtools />
-                    <Toaster richColors closeButton position="top-center" />
-                </AuthUIProvider>
+                        <AuthDevtools />
+                        <Toaster richColors closeButton position="top-center" />
+                    </AuthUIProvider>
+                </RootProvider>
             </ThemeProvider>
         </PHProvider>
     )

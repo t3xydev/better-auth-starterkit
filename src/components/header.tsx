@@ -1,9 +1,11 @@
 import { GitHubIcon } from "@daveyplate/better-auth-ui"
 import { headers } from "next/headers"
 import Link from "next/link"
-import { Settings } from "lucide-react"
+import { BookOpen, Settings } from "lucide-react"
 
 import { auth } from "@/lib/auth"
+import { docsEnabled } from "@/lib/docs"
+import { showGithub } from "@/lib/github-link"
 import { HeaderUserMenu } from "./header-user-menu"
 import { ModeToggle } from "./mode-toggle"
 import { Button } from "./ui/button"
@@ -30,6 +32,19 @@ export async function Header() {
             </Link>
 
             <div className="flex items-center gap-2">
+                {docsEnabled && (
+                    <Link href="/docs">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-8 rounded-full"
+                            aria-label="Documentation"
+                        >
+                            <BookOpen className="size-4" />
+                        </Button>
+                    </Link>
+                )}
+
                 {isAdmin && (
                     <Link href="/admin">
                         <Button
@@ -42,7 +57,7 @@ export async function Header() {
                     </Link>
                 )}
 
-                {process.env.NEXT_PUBLIC_HIDE_GITHUB !== "true" && (
+                {showGithub && (
                     <Link
                         href="https://github.com/t3xydev/better-auth-starterkit"
                         target="_blank"

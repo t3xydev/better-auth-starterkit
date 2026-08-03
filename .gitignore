@@ -18,6 +18,9 @@
 /out/
 next-env.d.ts
 
+# fumadocs
+.source
+
 # production
 /build
 

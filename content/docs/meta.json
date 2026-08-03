@@ -1,0 +1,16 @@
+{
+  "title": "Docs",
+  "pages": [
+    "index",
+    "product",
+    "getting-started",
+    "features",
+    "deployment",
+    "---",
+    "environment-variables",
+    "admin-panel",
+    "client-trust-model",
+    "invitations",
+    "typescript-better-invite"
+  ]
+}

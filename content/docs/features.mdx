@@ -1,23 +1,26 @@
-# Features
+---
+title: "Features"
+description: "What ships out of the box."
+---
 
 Everything wired into this starter so you can deploy an auth **server**, not just a login form.
 
-Configuration lives primarily in [`src/lib/auth.ts`](../src/lib/auth.ts) and [`src/lib/auth-client.ts`](../src/lib/auth-client.ts).
+Configuration lives primarily in [`src/lib/auth.ts`](https://github.com/t3xydev/better-auth-starterkit/blob/main/src/lib/auth.ts) and [`src/lib/auth-client.ts`](https://github.com/t3xydev/better-auth-starterkit/blob/main/src/lib/auth-client.ts).
 
 ## Authentication methods
 
 | Method | Plugin / config | Notes |
 |---|---|---|
-| Email & password | `emailAndPassword` | Sign-up verification + password reset via [email](../src/lib/email.ts) |
+| Email & password | `emailAndPassword` | Sign-up verification + password reset via [email](https://github.com/t3xydev/better-auth-starterkit/blob/main/src/lib/email.ts) |
 | Passkeys | `@better-auth/passkey` | WebAuthn; RP ID derived from `BETTER_AUTH_URL` |
 | Two-factor (TOTP) | `twoFactor` | Challenge UI at `/auth/two-factor` |
 | Nostr | `better-auth-nostr` + custom link plugin | Sign-in and account key linking (`/account/nostr`) |
-| Invitations | `better-invite` | Admin create/list UI, email + public invites, `/invite/activate/[token]` welcome + accept flow — [guide](./invitations.md). Opt-in invite-only registration via `NEXT_PUBLIC_INVITE_ONLY=true` |
+| Invitations | `better-invite` | Admin create/list UI, email + public invites, `/invite/activate/[token]` welcome + accept flow — [guide](/docs/invitations). Opt-in invite-only registration via `NEXT_PUBLIC_INVITE_ONLY=true` |
 | Organizations | `organization` | Opt-in via `NEXT_PUBLIC_ORGANIZATIONS_ENABLED=true`. Members, roles, email invites; UI at `/organization/*` and `/account/organizations` |
 
 ### Planned identity methods
 
-Same account model as above — first-class sign-in / link paths for the IdP (see [product.md](./product.md)):
+Same account model as above — first-class sign-in / link paths for the IdP (see [product.md](/docs/product)):
 
 | Method | Status | Notes |
 |---|---|---|
@@ -38,13 +41,13 @@ This app can act as an **authorization server** for your other apps — either b
 | OIDC discovery | `/.well-known/openid-configuration` |
 | OAuth AS metadata | `/.well-known/oauth-authorization-server` |
 | Protected resource metadata | `/.well-known/oauth-protected-resource` |
-| Admin UI for clients | `/admin/clients` — [guide](./admin-panel.md) |
+| Admin UI for clients | `/admin/clients` — [guide](/docs/admin-panel) |
 
 **Default scopes:** `openid`, `profile`, `email`, `offline_access`
 
 Dynamic client registration is off by default. Set `ALLOW_DYNAMIC_CLIENT_REGISTRATION=true` to enable it for authenticated users. Public unauthenticated registration stays off unless `ALLOW_UNAUTHENTICATED_CLIENT_REGISTRATION=true`.
 
-Dynamically registered clients start as **Tier 0 (unknown)**: public scopes only, mandatory consent, PKCE, no machine grants, and an “unverified” warning on the consent screen. See [client-trust-model.md](./client-trust-model.md).
+Dynamically registered clients start as **Tier 0 (unknown)**: public scopes only, mandatory consent, PKCE, no machine grants, and an “unverified” warning on the consent screen. See [client-trust-model.md](/docs/client-trust-model).
 
 ### Common endpoints
 
@@ -115,4 +118,4 @@ An MCP transport route is available at `/api/mcp/[transport]` for tooling integr
 3. Commit schema + migration files.  
 4. Deploy with `pnpm db:migrate && pnpm build`.
 
-See [deployment.md](./deployment.md) and [getting-started.md](./getting-started.md).
+See [deployment.md](/docs/deployment) and [getting-started.md](/docs/getting-started).

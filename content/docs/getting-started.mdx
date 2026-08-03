@@ -1,0 +1,130 @@
+---
+title: "Getting started"
+description: "Install, configure, migrate, and run locally."
+---
+
+Spin up a local Better Auth server in a few minutes.
+
+Prefer to click around first? Try the **[live demo](https://betterauth-starterkit.t3xy.dev/)**.
+
+## Prerequisites
+
+- Node.js 20+ (recommended)
+- [pnpm](https://pnpm.io) 10+
+- A PostgreSQL database (local, Docker, or hosted)
+
+### Optional: Postgres via Docker
+
+```bash
+docker run --name better-auth-db \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=better_auth \
+  -p 5432:5432 \
+  -d postgres:16
+```
+
+Then use:
+
+```bash
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/better_auth"
+```
+
+## Install
+
+```bash
+git clone https://github.com/t3xydev/better-auth-starterkit.git
+cd better-auth-starterkit
+pnpm install
+cp .env.example .env
+```
+
+## Configure
+
+Edit `.env` and set the required values:
+
+```bash
+APPLICATION_NAME="My Auth"
+BETTER_AUTH_URL="http://localhost:3000"
+BETTER_AUTH_SECRET="$(openssl rand -hex 32)"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/better_auth"
+```
+
+| Variable | Required | Notes |
+|---|---|---|
+| `BETTER_AUTH_SECRET` | Yes | Signing secret — use a long random string |
+| `BETTER_AUTH_URL` | Yes | Public URL of this app (no trailing slash) |
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+
+Optional: SMTP, branding colors, PostHog, trusted origins — see [environment-variables.md](/docs/environment-variables).
+
+## Database sync
+
+When plugins or auth config change, regenerate schema and apply migrations:
+
+```bash
+pnpm db:sync
+```
+
+That runs:
+
+1. `db:auth` — Better Auth schema generation  
+2. `db:gen` — Drizzle migration generation  
+3. `db:migrate` — apply pending SQL  
+
+Commit any new files under `migrations/` and `src/database/schema.ts` before deploying.
+
+For deploys that only need to apply already-committed migrations:
+
+```bash
+pnpm db:migrate
+```
+
+## Run the app
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). The home route redirects to `/auth/sign-in`.
+
+### Create an admin
+
+1. Sign up with email/password.  
+2. Promote yourself in SQL:
+
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'you@example.com';
+```
+
+3. Refresh — a settings (gear) icon appears in the header → [Admin panel](/docs/admin-panel).
+
+In `next dev`, Better Auth DevTools can also create test users with roles.
+
+## Verify health
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+Expected when the DB is up:
+
+```json
+{ "status": "healthy", "database": "connected", "latency_ms": 2 }
+```
+
+## Scripts reference
+
+| Script | Purpose |
+|---|---|
+| `pnpm dev` | Next.js dev server (Turbopack) |
+| `pnpm build` / `pnpm start` | Production build & serve |
+| `pnpm db:sync` | Full local schema + migrate pipeline |
+| `pnpm db:migrate` | Apply committed migrations only |
+| `pnpm lint` / `pnpm format` | Biome check / format |
+| `pnpm check-types` | `tsc --noEmit` |
+
+## Next steps
+
+- [Features](/docs/features) — plugins and endpoints  
+- [Deployment](/docs/deployment) — ship to Render, Railway, Vercel, …  
+- [Admin panel](/docs/admin-panel) — register OAuth clients for your apps  

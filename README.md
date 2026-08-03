@@ -22,6 +22,7 @@
 
 <p align="center">
   <a href="https://betterauth-starterkit.t3xy.dev/"><strong>Live demo</strong></a> ·
+  <a href="https://betterauth-starterkit.t3xy.dev/docs">Docs</a> ·
   <a href="https://t3xy.dev">t3xy.dev</a> ·
   <a href="docs/product.md">Product</a> ·
   <a href="docs/getting-started.md">Getting started</a> ·
@@ -158,10 +159,13 @@ src/
     ├── auth-client.ts   # Browser client
     └── email.ts         # SMTP / console mailer
 deploy/                  # Shared deploy config + sync (Railway / Dokploy / Cloudflare)
-docs/                    # Guides you’re reading
+docs/                    # Markdown guides (agents / GitHub)
+content/docs/            # Fumadocs MDX source (served at /docs)
 migrations/              # Committed Drizzle SQL (required for deploys)
 ```
 ## Documentation
+
+In-app docs (Fumadocs): run the app and open `/docs`. Edit pages under [`content/docs`](content/docs).
 
 | Guide | Description |
 |---|---|

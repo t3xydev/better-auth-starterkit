@@ -1,0 +1,110 @@
+---
+title: "Client trust model"
+description: "Trust tiers, DCR defaults, and scope gating."
+---
+
+> Part of the [docs index](/docs). Related: [admin panel](/docs/admin-panel) · [features](/docs/features) · [environment variables](/docs/environment-variables).
+
+Open interoperability without automatically trusting unknown applications.
+
+**Governing principle:** open registration, limited default authority, explicit user consent, earned trust, and immediate revocation.
+
+## Trust tiers
+
+| Tier | Key | How it is assigned | Default authority |
+|------|-----|--------------------|-------------------|
+| 0 Unknown | `unknown` | Dynamic client registration | Public scopes, mandatory consent, PKCE, no M2M, no consent bypass |
+| 1 Developer | `developer` | Verified developer account / admin | Higher limits; still requires consent |
+| 2 Verified | `verified` | Admin review | Private scopes (e.g. `offline_access`), verified badge |
+| 3 Partner | `partner` | Contractual approval | Machine scopes / `client_credentials` |
+| 4 First-party | `first_party` | Explicit admin config only | Consent bypass for approved scopes; never via DCR |
+
+Stored in private OAuth client `metadata` (not editable through public DCR):
+
+```json
+{
+  "trustTier": "verified",
+  "verifiedDomain": "example.com",
+  "reviewedAt": "2026-08-02T20:12:00-04:00",
+  "reviewedBy": "admin-user-id",
+  "riskLevel": "standard"
+}
+```
+
+Promotion is an **administrative** operation (`promoteClientTrustTier`). Clients cannot promote themselves by changing registration metadata.
+
+## Scopes in this starter
+
+| Scope | Category | Min tier to assign |
+|-------|----------|--------------------|
+| `openid` | Public | unknown |
+| `profile` | Public | unknown |
+| `email` | Public | unknown |
+| `offline_access` | Private | verified |
+
+Protocol-specific scopes (Nostr, AT Proto, wallet, MCP tool groups) are reserved for future resources; the evaluation rules below still apply when those scopes are added.
+
+## Dynamic registration (Tier 0)
+
+Controlled by `ALLOW_DYNAMIC_CLIENT_REGISTRATION` (default off). When enabled:
+
+- Clients are stamped `trustTier: "unknown"`
+- Only public scopes may be requested
+- `client_credentials` is rejected
+- PKCE is required; `skip_consent` cannot be set (enforced by Better Auth + our wrapper)
+- Redirect URIs must be HTTPS (localhost excepted)
+- Confidential client secrets expire (`30d` by default)
+
+Unauthenticated public registration remains behind `ALLOW_UNAUTHENTICATED_CLIENT_REGISTRATION`.
+
+## Privilege evaluation
+
+Every protected API call should satisfy:
+
+```text
+client may request the scope
+AND user granted the scope
+AND token contains the scope
+AND token audience matches the resource
+AND user is authorized for the resource
+AND client trust tier permits the operation
+AND request is within rate / risk limits
+```
+
+A valid OAuth token does not authorize every action.
+
+## Registration vs runtime privileges
+
+| Registration | Runtime |
+|--------------|---------|
+| Create / update / delete clients | Read or write user data |
+| Manage redirect URIs & credentials | Call MCP tools / adapters |
+| View secrets (admin) | Background / offline access |
+
+Permission to register a client does **not** grant access to user data.
+
+## Consent UX
+
+Unknown and developer clients show an **Unverified application** warning on `/consent`. Verified and above show a verified badge. First-party clients may skip consent when `skipConsent` is set by an admin.
+
+## Admin controls
+
+On `/admin/clients/[id]`:
+
+- Set trust tier (promotion / demotion)
+- `skipConsent` only when tier is `first_party`
+- `client_credentials` only when tier is `partner` or `first_party`
+- Scopes filtered to those allowed for the selected tier
+
+## Revocation
+
+Use existing admin disable/delete plus Better Auth token revocation. Users can revoke grants from account settings. Future work: per-grant audit UI, developer suspension, global scope kill-switches.
+
+## Recommended default policy
+
+```text
+Unknown: open DCR (when enabled), public scopes, consent, PKCE, short secrets, no M2M
+Verified: private scopes, verified badge, longer refresh with consent
+Partner: admin-approved M2M and organization scopes
+First-party: explicitly configured, optional consent bypass
+```
