@@ -67,9 +67,10 @@ When you must change a kit file:
 
 If the branch layout from skill `eject-and-follow` is in use:
 
-- Product work → `app/main` (and feature branches off it)
-- Upstream refresh → `kit/main`, then selective merge
-- On conflict in a wiring file: restore thin imports; keep module bodies from `app`
+- Product work → `main` (and feature branches off it)
+- Starter line → `dev`
+- Upstream refresh → `kit/main` (no_push) → align `dev`, then selective merge via `kit/sync/*`
+- On conflict in a wiring file: restore thin imports; keep module bodies from the product side
 
 ## Anti-patterns
 

@@ -9,17 +9,20 @@ description: >-
 
 # Eject and follow upstream
 
-Fork stays syncable: **product work lives on ejected branches**; **kit updates land on tracking branches**, then you pull only what you want.
+Fork stays syncable: **product work lives on `main`**; **`dev` is the starter line**; local `kit/*` helpers stay no_push.
 
 ## Branch model
 
 | Branch | Role |
 |--------|------|
-| `kit/main` | Tracks upstream starter (clean, rarely edited) |
-| `app/main` | Ejected product line (default day-to-day work) |
-| `app/sync/<topic>` | Optional short-lived branch to bring a kit change into `app/main` |
+| `main` | Product line (default day-to-day work; **default branch** on the remote when pushed) |
+| `dev` | Starter line (tracks / mirrors the kit starter on the fork) |
+| `kit/main` | Local-only tracker of upstream starter (**no_push** — never push to origin) |
+| `kit/sync/<topic>` | Optional short-lived branch to bring a kit change into `main` (**no_push**) |
 
-Do not invent more permanent branches unless the user asks. Local `main` may still exist; after eject, prefer working on `app/main`.
+Do not invent more permanent branches unless the user asks. After eject, product work is on **`main`**; starter-aligned work stays on **`dev`**.
+
+`kit/main` and `kit/sync/*` are local helpers for mirroring / merging the starter. They must not appear on `origin`.
 
 ## Remotes
 
@@ -30,20 +33,20 @@ git remote add upstream https://github.com/t3xydev/better-auth-starterkit.git
 git fetch upstream
 ```
 
-If the fork *is* the starter repo, skip `upstream` and treat `origin/main` as the kit source while product work stays on `app/*`.
+If the fork *is* the starter repo, skip `upstream` and treat `origin`’s starter tip as the kit source while product work diverges on `main`.
 
 ## Eject (once)
 
-Creates the product branch and freezes a kit-tracking branch at the same commit.
+Creates local kit tracking, product `main`, and starter `dev`.
 
 ```bash
 git fetch upstream   # if configured
 git checkout -B kit/main upstream/main   # or origin/main when no upstream remote
-git checkout -B app/main kit/main
-git push -u origin kit/main app/main
+git checkout -B main kit/main            # product branch (will diverge)
+git checkout -B dev kit/main             # starter branch
 ```
 
-Then, **on `app/main` only** (never on `kit/main`):
+Then, **on `main` only** (never on `kit/main` or `dev`):
 
 1. Delete the starterkit identity rule so product agents stop treating the fork as the kit:
 
@@ -56,23 +59,42 @@ Then, **on `app/main` only** (never on `kit/main`):
    )"
    ```
 
-2. Set the default working branch to **`app/main`**.
-3. Tell the user: kit syncs happen on **`kit/main`**; features land on **`app/main`**.
+2. Keep product work on **`main`**. Leave **`dev`** as the starter line (do not drop `project-identity.mdc` there).
+3. Tell the user: kit syncs refresh local **`kit/main`** (no_push) and **`dev`**; features land on **`main`**; bring kit changes via **`kit/sync/*`**.
 4. Do **not** rewrite `kit/main` with product commits.
+5. Do **not** push `kit/main` or `kit/sync/*`.
 
-If `.cursor/rules/project-identity.mdc` reappears when merging kit → app, prefer **app** (keep it deleted) unless the user wants the kit rule back.
+If `.cursor/rules/project-identity.mdc` reappears when merging kit → main, prefer **main** (keep it deleted) unless the user wants the kit rule back.
 
-Optional: point GitHub default branch to `app/main`.
+### Ask: is a remote available?
+
+**Always ask** the user whether `origin` (or another remote) is available and they want branches pushed.
+
+**If remote is available** — push **`main` first** so it can be the default, then **`dev`**:
+
+```bash
+git push -u origin main
+gh repo edit --default-branch main   # GitHub; skip / adapt for other hosts
+git push -u origin dev
+```
+
+Order matters: push `main` → set default → push `dev`. Never push `kit/*`.
+
+**If no remote** — leave branches local; skip push and default-branch steps.
 
 ## Follow upstream
 
-Refresh the kit branch, then selectively bring changes into the app.
+Refresh the kit branch (and starter `dev`), then selectively bring changes into the product.
 
 ```bash
 git fetch upstream
 git checkout kit/main
 git merge --ff-only upstream/main   # prefer ff-only; if it fails, reset --hard upstream/main only with user OK
-git push origin kit/main
+# kit/main is no_push — do not git push
+
+git checkout dev
+git merge --ff-only kit/main        # keep starter branch aligned
+# if remote was set up: git push origin dev
 ```
 
 ### Bring a change into the app
@@ -80,55 +102,59 @@ git push origin kit/main
 **Small / known commits** — cherry-pick onto a sync branch:
 
 ```bash
-git checkout app/main
-git checkout -b app/sync/<short-topic>
-git cherry-pick <sha>…              # from kit/main
-# resolve conflicts, keep app customizations
-git checkout app/main
-git merge --no-ff app/sync/<short-topic>
-git branch -d app/sync/<short-topic>
+git checkout main
+git checkout -b kit/sync/<short-topic>
+git cherry-pick <sha>…              # from kit/main or dev
+# resolve conflicts, keep product customizations
+git checkout main
+git merge --no-ff kit/sync/<short-topic>
+git branch -d kit/sync/<short-topic>
 ```
 
-**Broader kit update** — merge `kit/main` into a sync branch, not straight onto `app/main` until reviewed:
+**Broader kit update** — merge `kit/main` into a sync branch, not straight onto `main` until reviewed:
 
 ```bash
-git checkout -b app/sync/kit-$(date +%Y%m%d) app/main
+git checkout -b kit/sync/$(date +%Y%m%d) main
 git merge kit/main
-# resolve; prefer keeping files under src/modules/ and app overrides
-git checkout app/main
-git merge --no-ff app/sync/kit-…
+# resolve; prefer keeping files under src/modules/ and product overrides
+git checkout main
+git merge --no-ff kit/sync/…
 ```
 
-Never force-push `kit/main` or `app/main` unless the user explicitly asks.
+Never push `kit/main` or `kit/sync/*`. Never force-push `main` or `dev` unless the user explicitly asks.
 
 ## Conflict triage
 
-When merging kit → app:
+When merging kit → main:
 
-1. Prefer **app** for files under `src/modules/` and clear product overrides.
-2. Prefer **kit** for starter core you have not customized.
+1. Prefer **main** for files under `src/modules/` and clear product overrides.
+2. Prefer **kit** / **dev** for starter core you have not customized.
 3. For shared composition files (`src/lib/auth.ts`, layouts, deploy config): keep **thin wiring**; move custom logic out (see skill `modular-dev`).
-4. Prefer **app** for `.cursor/rules/project-identity.mdc` — keep it deleted after eject.
+4. Prefer **main** for `.cursor/rules/project-identity.mdc` — keep it deleted after eject.
 5. Re-run `pnpm deploy:sync` after kit changes touch `deploy/config.ts`.
 
 ## What “ejected” means here
 
-Eject is **branch separation** plus dropping starterkit-only agent identity on the product branch. You keep following upstream via `kit/main`. Full hard-fork (drop remotes / never sync) only if the user asks explicitly.
+Eject is **branch separation** plus dropping starterkit-only agent identity on the product branch. **`dev` stays the starter**; local **`kit/main`** stays no_push for upstream ff. Full hard-fork (drop remotes / never sync) only if the user asks explicitly.
 
-On eject, remove `.cursor/rules/project-identity.mdc` from **`app/main`**. Leave it on **`kit/main`** so upstream stays intact.
+On eject, remove `.cursor/rules/project-identity.mdc` from **`main`** only. Leave it on **`dev`** and **`kit/main`**.
 
 ## Checklist
 
 ```
 Eject / follow:
-- [ ] upstream remote present (or origin is the kit)
-- [ ] kit/main tracks starter
-- [ ] app/main is the product branch
-- [ ] .cursor/rules/project-identity.mdc removed on app/main
-- [ ] product commits are not on kit/main
-- [ ] sync uses app/sync/* then merge to app/main
-- [ ] kit→app conflicts: keep project-identity.mdc deleted on app
-- [ ] no force-push unless user requested
+- [ ] Asked whether remote is available
+- [ ] upstream remote present when following (or origin is the kit)
+- [ ] kit/main tracks starter locally (no_push — never on origin)
+- [ ] main is the product branch
+- [ ] dev is the starter branch
+- [ ] If remote: pushed main, set as default, then pushed dev
+- [ ] .cursor/rules/project-identity.mdc removed on main (kept on dev)
+- [ ] product commits are not on kit/main or dev
+- [ ] sync uses kit/sync/* then merge to main
+- [ ] kit→main conflicts: keep project-identity.mdc deleted on main
+- [ ] never push kit/main or kit/sync/*
+- [ ] no force-push of main/dev unless user requested
 ```
 
 ## Related
