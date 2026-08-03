@@ -30,7 +30,7 @@ Consumers choose one of these shapes; both are intentional:
 | **Extend the template** | Keep this Next.js app, build product UI here, run the full frontend + auth server together | Monolith starter you grow into a product |
 | **Accounts-style IdP** | Deploy this primarily as the auth/accounts host; other apps are separate OAuth/OIDC clients | Shared issuer + many client apps |
 
-Do not assume one mode. Prefer designs that work in both: solid issuer/API/consent/admin first; first-party marketing/app pages are optional surface on top. Eject/follow workflow for product forks: `.cursor/skills/eject-and-follow/SKILL.md`.
+Do not assume one mode. Prefer designs that work in both: solid issuer/API/consent/admin first; first-party marketing/app pages are optional surface on top. Eject/follow workflow for product forks: `agents/eject-and-follow.md` (see also `AGENTS.md`).
 
 ## Identity & protocol capabilities
 
