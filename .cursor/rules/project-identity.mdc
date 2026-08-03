@@ -1,0 +1,80 @@
+---
+description: Core product identity for Better Auth StarterKit — an IdP / OIDC auth server
+alwaysApply: true
+---
+
+# Project identity
+
+This repo is a **framework and starterkit** built on [Better Auth](https://better-auth.com) for shipping your **own authentication / identity server**.
+
+## Vision
+
+Build toward a more **open, federated, and decentralized** identity future: standards-based issuers anyone can run, apps that federate via OAuth / OIDC, and accounts that can link protocol and wallet identities — not closed login silos.
+
+## What it is
+
+- An **authorization server / OpenID Connect provider** you own and deploy.
+- Meant to be used by other apps as a shared identity host: users sign in here; client apps get tokens via standard OAuth 2.1 / OIDC flows.
+- Not “just add login to one Next.js app.” The Next.js app *is* the auth server (UI + API + discovery + admin).
+- Bridges **web2 auth** (email, passkeys, OIDC) with **decentralized / crypto identity** so one issuer can cover both.
+- **Billing** is planned (subscriptions / payments tied to the same account model — not shipped yet).
+
+**Public copy:** do **not** name third-party IdP brands or hostnames in docs, README, marketing, or Linear. Describe the pattern generically (“own IdP”, “accounts-style”, “shared identity host”, “open / federated / decentralized”).
+
+## Two ways to use it
+
+Consumers choose one of these shapes; both are intentional:
+
+| Mode | What you do | Like |
+|---|---|---|
+| **Extend the template** | Keep this Next.js app, build product UI here, run the full frontend + auth server together | Monolith starter you grow into a product |
+| **Accounts-style IdP** | Deploy this primarily as the auth/accounts host; other apps are separate OAuth/OIDC clients | Shared issuer + many client apps |
+
+Do not assume one mode. Prefer designs that work in both: solid issuer/API/consent/admin first; first-party marketing/app pages are optional surface on top. Eject/follow workflow for product forks: `.cursor/skills/eject-and-follow/SKILL.md`.
+
+## Identity & protocol capabilities
+
+Classic IdP:
+
+- Email/password, passkeys, 2FA, invites, optional orgs
+- OAuth 2.1 / OIDC provider (`@better-auth/oauth-provider`), discovery, consent, admin clients
+- **Billing** (planned) — account-scoped plans/payments that fit either usage mode
+
+Decentralized / social / wallet (product surface — implement or extend toward these):
+
+| Capability | Notes |
+|---|---|
+| **Nostr** | Sign-in + key linking (`better-auth-nostr`) — currently wired |
+| **Bluesky** | AT Proto identity / login linking |
+| **Bitcoin Connect** | BTC wallet connect as an auth/link method |
+| **Lightning** | Lightning Network auth / payments-adjacent identity |
+| **ETH** | Ethereum wallet sign-in / account linking (e.g. SIWE-style) |
+
+Treat these as first-class **sign-in and account-link methods** on the IdP, not as separate products. Protocol-specific OAuth scopes (Nostr, AT Proto, wallet, etc.) may be reserved for resources — see `docs/client-trust-model.md`.
+
+## Mental model
+
+| Role | Analogy |
+|---|---|
+| This deploy | Your IdP / accounts host (optionally plus your product UI) |
+| Other products / SPAs / APIs | OAuth / OIDC clients (same deploy in extend mode, or separate hosts in IdP mode) |
+| End users | Accounts living on *your* issuer (email, Nostr, Bluesky, BTC/LN, ETH, …) |
+
+Discovery and protocol surfaces (see `docs/features.md`):
+
+- `/.well-known/openid-configuration`
+- `/.well-known/oauth-authorization-server`
+- Authorize / token / userinfo under `/api/auth/oauth2/*`
+- Consent UI, admin client management
+
+Implementation uses `@better-auth/oauth-provider` (successor to the older `oidcProvider` plugin), not a third-party IdP as the source of truth.
+
+## How agents should treat work
+
+- Prefer changes that strengthen **IdP / AS** behavior: clients, scopes, consent, trust tiers, discovery, issuer/JWT, admin ops, deployability.
+- Prefer identity methods that plug into the same account model (link + sign-in), especially Nostr, Bluesky, Bitcoin Connect, Lightning, and ETH.
+- Prefer openness: federated OIDC clients, DCR with earned privileges, portable / decentralized identity links.
+- Design for **both** extend-the-template and accounts-style separation; avoid coupling that forces one mode.
+- Treat billing as planned account-layer work, not a separate product silo.
+- Keep first-party app auth UX (sign-in, account) in service of the server; product frontend is optional in IdP-only setups.
+- When explaining or documenting, lead with “own open / federated / decentralized identity server,” not “Next.js auth boilerplate.”
