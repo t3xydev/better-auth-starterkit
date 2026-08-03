@@ -3,7 +3,7 @@ title: "Invitations"
 description: "better-invite setup, activate UI, and admin invites."
 ---
 
-> Part of the [docs index](/docs). Related: [features](/docs/features) · [admin panel](/docs/admin-panel) · [TypeScript shim](/docs/typescript-better-invite).
+> Part of the [docs index](/docs/framework). Related: [features](/docs/framework/features) · [admin panel](/docs/framework/admin-panel) · [TypeScript shim](/docs/framework/typescript-better-invite).
 
 This starter uses the community [better-invite](https://www.better-invite.com/) plugin for email and public invites with role assignment. Official docs: [llms-full.txt](https://www.better-invite.com/llms-full.txt).
 
@@ -31,7 +31,7 @@ This starter uses the community [better-invite](https://www.better-invite.com/) 
 
 ## Admin flow
 
-1. Promote an admin (see [admin panel](/docs/admin-panel)). With invite-only enabled, create the first account before (or as) the bootstrap user, then promote.
+1. Promote an admin (see [admin panel](/docs/framework/admin-panel)). With invite-only enabled, create the first account before (or as) the bootstrap user, then promote.
 2. Open **Admin → Invites** (`/admin/invites`).
 3. Click **New Invite**, choose a role, optionally set an email.
 4. For private invites, the recipient opens the email link, signs in if needed, and accepts.
@@ -49,4 +49,4 @@ await authClient.invite.list()
 ## Notes
 
 - The default Better Auth path `/api/auth/invite/:token` still exists; this kit prefers the custom UI URL via `defaultCustomInviteUrl`.
-- After upgrading `better-auth` or `better-invite`, see [typescript-better-invite.md](/docs/typescript-better-invite) for the `$ERROR_CODES` shim.
+- After upgrading `better-auth` or `better-invite`, see [typescript-better-invite.md](/docs/framework/typescript-better-invite) for the `$ERROR_CODES` shim.

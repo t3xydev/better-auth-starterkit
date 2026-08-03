@@ -4,7 +4,7 @@ import Link from "next/link"
 import { BookOpen, Settings } from "lucide-react"
 
 import { auth } from "@/lib/auth"
-import { docsEnabled } from "@/lib/docs"
+import { docsBasePath, docsEnabled } from "@/lib/docs"
 import { showGithub } from "@/lib/github-link"
 import { HeaderUserMenu } from "./header-user-menu"
 import { ModeToggle } from "./mode-toggle"
@@ -33,7 +33,7 @@ export async function Header() {
 
             <div className="flex items-center gap-2">
                 {docsEnabled && (
-                    <Link href="/docs">
+                    <Link href={docsBasePath}>
                         <Button
                             variant="outline"
                             size="icon"

@@ -39,7 +39,7 @@ Commit the updated `src/database/schema.ts` and any new files under `migrations/
 ## Pull requests
 
 1. Keep changes focused — one concern per PR when possible.  
-2. Update docs under `content/docs/` when behavior or env vars change.  
+2. Update docs under `docs/framework/` when behavior or env vars change.  
 3. Prefer extending existing patterns in `src/lib/auth.ts` over parallel auth stacks.  
 
 ## Code style

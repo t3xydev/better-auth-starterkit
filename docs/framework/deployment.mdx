@@ -3,7 +3,7 @@ title: "Deployment"
 description: "Synced deploy targets and classic hosts."
 ---
 
-> Part of the [docs index](/docs). For local setup, see [getting started](/docs/getting-started).
+> Part of the [docs index](/docs/framework). For local setup, see [getting started](/docs/framework/getting-started).
 
 This app uses PostgreSQL and Drizzle migrations. Prefer the **synced deploy targets** below for Cloudflare, Railway, and Dokploy. Other hosts can still use the classic build/start commands.
 
@@ -25,7 +25,7 @@ Do not hand-edit generated files (`Dockerfile`, `.dockerignore`, `docker-compose
 
 Shared container behavior: image build runs `pnpm build` only. On start, the container runs `pnpm db:migrate && pnpm start` so `DATABASE_URL` is required at **runtime**, not image-build time.
 
-Required env on every target: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (see [environment-variables.md](/docs/environment-variables)).
+Required env on every target: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (see [environment-variables.md](/docs/framework/environment-variables)).
 
 ### Railway
 
@@ -161,7 +161,7 @@ Regenerates Railway / Dokploy / Cloudflare config files from `deploy/config.ts`.
 | `BETTER_AUTH_SECRET` | Yes | Runtime | Session/token signing secret |
 | `BETTER_AUTH_URL` | Yes | Runtime | Public base URL of the auth server |
 
-See [environment-variables.md](/docs/environment-variables) for the full list.
+See [environment-variables.md](/docs/framework/environment-variables) for the full list.
 
 ---
 

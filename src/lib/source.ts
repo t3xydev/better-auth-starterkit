@@ -9,6 +9,6 @@ const files = (
 ).files()
 
 export const source = loader({
-    baseUrl: "/docs",
+    baseUrl: "/docs/framework",
     source: { files } as typeof generated
 })

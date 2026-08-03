@@ -3,7 +3,7 @@ title: "Admin panel"
 description: "Create and manage OAuth / OIDC clients."
 ---
 
-> Part of the [docs index](/docs). Related: [features](/docs/features) · [environment variables](/docs/environment-variables).
+> Part of the [docs index](/docs/framework). Related: [features](/docs/framework/features) · [environment variables](/docs/framework/environment-variables).
 
 The admin panel lets administrators register, configure, and manage OAuth clients (internal applications) that authenticate against this auth server.
 
@@ -37,7 +37,7 @@ Once promoted, a gear icon appears in the header. Click it or navigate directly 
 
 Non-admin users are redirected away automatically.
 
-Also available: **Invites** at `/admin/invites` — see [invitations.md](/docs/invitations).
+Also available: **Invites** at `/admin/invites` — see [invitations.md](/docs/framework/invitations).
 
 ---
 
@@ -49,7 +49,7 @@ Also available: **Invites** at `/admin/invites` — see [invitations.md](/docs/i
 2. Fill in the required fields:
    - **Application Name** -- display name shown on consent screens.
    - **Redirect URIs** -- one per line; at least one is required.
-3. Choose a **trust tier** (defaults to Registered developer). See [client-trust-model.md](/docs/client-trust-model).
+3. Choose a **trust tier** (defaults to Registered developer). See [client-trust-model.md](/docs/framework/client-trust-model).
 4. Optionally toggle:
    - **Skip consent screen** -- first-party tier only.
    - **Enable end session** -- allow RP-initiated logout.

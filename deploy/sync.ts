@@ -179,7 +179,7 @@ function wranglerWorkers(): string {
     return `// ${GENERATED}
 // Cloudflare runtime: workers (OpenNext)
 // Install: pnpm add -D wrangler @opennextjs/cloudflare
-// Postgres: configure Hyperdrive and bind it in this file (see content/docs/deployment.mdx).
+// Postgres: configure Hyperdrive and bind it in this file (see docs/framework/deployment.mdx).
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "${name}",

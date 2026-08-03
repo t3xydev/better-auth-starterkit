@@ -11,7 +11,10 @@ export function SiteChrome({
     children: ReactNode
 }) {
     const pathname = usePathname()
-    const isDocs = pathname === "/docs" || pathname.startsWith("/docs/")
+    const isDocs =
+        pathname === "/docs" ||
+        pathname === "/docs/framework" ||
+        pathname.startsWith("/docs/framework/")
 
     return (
         <>

@@ -10,7 +10,7 @@ import { dbscClient } from "@dbsc-toolkit/better-auth/client"
 import posthog from "@/lib/posthog"
 import { organizationsEnabled } from "@/lib/organizations"
 
-/** See `content/docs/typescript-better-invite.mdx` — must match server `invite()` shim. */
+/** See `docs/framework/typescript-better-invite.mdx` — must match server `invite()` shim. */
 type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> & Pick<BetterAuthPlugin, "$ERROR_CODES">
 
 const authEventsByPath: Record<string, string> = {

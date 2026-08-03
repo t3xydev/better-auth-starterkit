@@ -22,14 +22,14 @@
 
 <p align="center">
   <a href="https://betterauth-starterkit.t3xy.dev/"><strong>Live demo</strong></a> ·
-  <a href="https://betterauth-starterkit.t3xy.dev/docs">Docs</a> ·
+  <a href="https://betterauth-starterkit.t3xy.dev/docs/framework">Docs</a> ·
   <a href="https://t3xy.dev">t3xy.dev</a> ·
-  <a href="content/docs/product.mdx">Product</a> ·
-  <a href="content/docs/getting-started.mdx">Getting started</a> ·
-  <a href="content/docs/features.mdx">Features</a> ·
-  <a href="content/docs/deployment.mdx">Deploy</a> ·
-  <a href="content/docs/environment-variables.mdx">Env vars</a> ·
-  <a href="content/docs/admin-panel.mdx">Admin panel</a>
+  <a href="docs/framework/product.mdx">Product</a> ·
+  <a href="docs/framework/getting-started.mdx">Getting started</a> ·
+  <a href="docs/framework/features.mdx">Features</a> ·
+  <a href="docs/framework/deployment.mdx">Deploy</a> ·
+  <a href="docs/framework/environment-variables.mdx">Env vars</a> ·
+  <a href="docs/framework/admin-panel.mdx">Admin panel</a>
 </p>
 
 ---
@@ -75,7 +75,7 @@ You get Postgres + migrations, OIDC discovery, consent, an admin UI for OAuth cl
 | Health endpoint (`/api/health`) | Ready |
 | Better Auth Dash / Sentinel / DevTools | Ready |
 
-Full breakdown → [content/docs/features.mdx](content/docs/features.mdx) · product framing → [content/docs/product.mdx](content/docs/product.mdx)
+Full breakdown → [docs/framework/features.mdx](docs/framework/features.mdx) · product framing → [docs/framework/product.mdx](docs/framework/product.mdx)
 
 ## Stack
 
@@ -108,7 +108,7 @@ BETTER_AUTH_URL="http://localhost:3000"
 DATABASE_URL="postgresql://user:pass@localhost:5432/better_auth"
 ```
 
-See [environment variables](content/docs/environment-variables.mdx) for SMTP, branding, OAuth, PostHog, and trusted origins.
+See [environment variables](docs/framework/environment-variables.mdx) for SMTP, branding, OAuth, PostHog, and trusted origins.
 
 **3. Sync the database & run**
 
@@ -120,8 +120,8 @@ pnpm dev
 Open [http://localhost:3000](http://localhost:3000) — you’ll land on sign-in.
 
 > First admin: sign up, then `UPDATE users SET role = 'admin' WHERE email = 'you@example.com';`  
-> With `NEXT_PUBLIC_INVITE_ONLY=true`, the first user can still sign up to bootstrap; later sign-ups need an invite — [invitations](content/docs/invitations.mdx).  
-> Details in [admin panel docs](content/docs/admin-panel.mdx).
+> With `NEXT_PUBLIC_INVITE_ONLY=true`, the first user can still sign up to bootstrap; later sign-ups need an invite — [invitations](docs/framework/invitations.mdx).  
+> Details in [admin panel docs](docs/framework/admin-panel.mdx).
 
 ## Deploy
 
@@ -136,7 +136,7 @@ pnpm deploy:sync
 | **Build** | `pnpm db:migrate && pnpm build` | Image: `pnpm build` |
 | **Start** | `pnpm start` | `pnpm db:migrate && pnpm start` |
 
-`DATABASE_URL` is required at **build** for classic migrate-during-build, or at **container start** for Docker targets. Platform notes → [content/docs/deployment.mdx](content/docs/deployment.mdx).
+`DATABASE_URL` is required at **build** for classic migrate-during-build, or at **container start** for Docker targets. Platform notes → [docs/framework/deployment.mdx](docs/framework/deployment.mdx).
 
 ```mermaid
 flowchart LR
@@ -159,23 +159,24 @@ src/
     ├── auth-client.ts   # Browser client
     └── email.ts         # SMTP / console mailer
 deploy/                  # Shared deploy config + sync (Railway / Dokploy / Cloudflare)
-docs/                    # Pointers + assets (banner); edit content in content/docs
-content/docs/            # Canonical docs (Fumadocs MDX; /docs when enabled)
+docs/
+├── assets/              # README / marketing assets (banner)
+└── framework/           # Canonical docs (Fumadocs; /docs/framework when enabled)
 migrations/              # Committed Drizzle SQL (required for deploys)
 ```
 ## Documentation
 
-Canonical source: [`content/docs`](content/docs). In-app site at `/docs` when `NEXT_PUBLIC_DOCS_ENABLED=true`.
+Canonical source: [`docs/framework`](docs/framework). In-app site at `/docs/framework` when `NEXT_PUBLIC_DOCS_ENABLED=true`.
 
 | Guide | Description |
 |---|---|
-| [Product](content/docs/product.mdx) | IdP framing, dual usage modes, planned identity + billing |
-| [Getting started](content/docs/getting-started.mdx) | Local setup walkthrough |
-| [Features](content/docs/features.mdx) | Plugins, endpoints, and what ships out of the box |
-| [Deployment](content/docs/deployment.mdx) | Railway / Dokploy / Cloudflare sync + classic hosts |
-| [Environment variables](content/docs/environment-variables.mdx) | Full env reference |
-| [Admin panel](content/docs/admin-panel.mdx) | Manage OAuth clients |
-| [Docs index](content/docs/index.mdx) | Everything in one place |
+| [Product](docs/framework/product.mdx) | IdP framing, dual usage modes, planned identity + billing |
+| [Getting started](docs/framework/getting-started.mdx) | Local setup walkthrough |
+| [Features](docs/framework/features.mdx) | Plugins, endpoints, and what ships out of the box |
+| [Deployment](docs/framework/deployment.mdx) | Railway / Dokploy / Cloudflare sync + classic hosts |
+| [Environment variables](docs/framework/environment-variables.mdx) | Full env reference |
+| [Admin panel](docs/framework/admin-panel.mdx) | Manage OAuth clients |
+| [Docs index](docs/framework/index.mdx) | Everything in one place |
 
 ## Roadmap
 
@@ -185,7 +186,7 @@ Planned on the same account / IdP model (works in both usage modes):
 - Bitcoin Connect, Lightning, and Ethereum wallet identity  
 - Billing (subscriptions / payments scoped to the account)
 
-Ideas and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) and [content/docs/product.mdx](content/docs/product.mdx).
+Ideas and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/framework/product.mdx](docs/framework/product.mdx).
 ## Credits
 
 Forked from [daveyplate/better-auth-nextjs-starter](https://github.com/daveyplate/better-auth-nextjs-starter).
