@@ -2,7 +2,7 @@
     "name": "better-auth-starterkit",
     "version": "0.1.0",
     "private": true,
-    "description": "Deploy-ready Better Auth server starter — OAuth/OIDC, passkeys, 2FA, admin panel, Next.js + PostgreSQL",
+    "description": "Own OpenID / OAuth identity server on Better Auth — extend the full app or run accounts-style; Nostr ready; Bluesky, wallets, billing planned",
     "scripts": {
         "dev": "next dev --turbopack",
         "build": "next build",

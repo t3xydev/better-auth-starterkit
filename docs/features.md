@@ -15,9 +15,21 @@ Configuration lives primarily in [`src/lib/auth.ts`](../src/lib/auth.ts) and [`s
 | Invitations | `better-invite` | Admin create/list UI, email + public invites, `/invite/activate/[token]` welcome + accept flow — [guide](./invitations.md). Opt-in invite-only registration via `NEXT_PUBLIC_INVITE_ONLY=true` |
 | Organizations | `organization` | Opt-in via `NEXT_PUBLIC_ORGANIZATIONS_ENABLED=true`. Members, roles, email invites; UI at `/organization/*` and `/account/organizations` |
 
+### Planned identity methods
+
+Same account model as above — first-class sign-in / link paths for the IdP (see [product.md](./product.md)):
+
+| Method | Status | Notes |
+|---|---|---|
+| Bluesky (AT Proto) | Planned | Handle / DID identity + linking |
+| Bitcoin Connect | Planned | BTC wallet connect as auth/link |
+| Lightning | Planned | LN auth / payments-adjacent identity |
+| Ethereum | Planned | Wallet sign-in / linking (e.g. SIWE-style) |
+| Billing | Planned | Account-scoped plans / payments |
+
 ## OAuth 2.1 / OpenID Connect provider
 
-This app can act as an **authorization server** for your other apps.
+This app can act as an **authorization server** for your other apps — either by extending this template’s frontend, or by deploying it as an accounts-style IdP that other products call.
 
 | Piece | Location |
 |---|---|

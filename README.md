@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <strong>Ship a production-ready Better Auth server in minutes.</strong><br />
-  Email/password, OAuth 2.1 / OIDC provider, passkeys, 2FA, invites, Nostr, admin panel — all wired up.
+  <strong>Your own OpenID / OAuth identity server, on Better Auth.</strong><br />
+  Open, federated, decentralized — OIDC IdP · Nostr · wallets planned · extend the app or run accounts-style
 </p>
 
 <p align="center">
@@ -23,6 +23,7 @@
 <p align="center">
   <a href="https://betterauth-starterkit.t3xy.dev/"><strong>Live demo</strong></a> ·
   <a href="https://t3xy.dev">t3xy.dev</a> ·
+  <a href="docs/product.md">Product</a> ·
   <a href="docs/getting-started.md">Getting started</a> ·
   <a href="docs/features.md">Features</a> ·
   <a href="docs/deployment.md">Deploy</a> ·
@@ -34,9 +35,18 @@
 
 ## Why this exists
 
-Most auth starters stop at “sign in works locally.” This kit is built for **quick deploys** of a real auth **server**: Postgres + migrations, OIDC discovery, an admin UI for OAuth clients, SMTP, branding via env vars, and a health check your host can probe.
+Most auth starters stop at “sign in works locally.” This kit is a **framework + starter** for shipping your **own identity / OpenID Connect server** — a shared issuer other apps authenticate against.
 
-Clone it, set three variables, migrate, deploy. Extend the plugins as you grow.
+The direction is a more **open, federated, and decentralized** future: standards-based OAuth / OIDC you control, plus first-class paths for protocol and wallet identity (Nostr today; Bluesky, Bitcoin Connect, Lightning, ETH planned) instead of locking users into a single closed login silo.
+
+You get Postgres + migrations, OIDC discovery, consent, an admin UI for OAuth clients, SMTP, branding via env vars, and a health check your host can probe. Clone it, set three variables, migrate, deploy.
+
+**Two ways to use it:**
+
+| Mode | What you do |
+|---|---|
+| **Extend the template** | Keep this Next.js app, build product UI here, run frontend + auth together |
+| **Accounts-style IdP** | Deploy this as the accounts host; other apps are separate OAuth / OIDC clients |
 
 **Live demo:** [https://betterauth-starterkit.t3xy.dev/](https://betterauth-starterkit.t3xy.dev/)
 
@@ -51,6 +61,11 @@ Clone it, set three variables, migrate, deploy. Extend the plugins as you grow.
 | User invitations | Ready |
 | Organizations (members, roles, invites) | Opt-in (`NEXT_PUBLIC_ORGANIZATIONS_ENABLED`) |
 | Nostr sign-in + key linking | Ready |
+| Bluesky (AT Proto) identity | Planned |
+| Bitcoin Connect | Planned |
+| Lightning | Planned |
+| Ethereum (wallet / SIWE-style) | Planned |
+| Billing (account-scoped) | Planned |
 | Admin role + **OAuth client management UI** | Ready |
 | OpenAPI docs for the auth API | Ready |
 | SMTP email (or console fallback) | Ready |
@@ -59,7 +74,7 @@ Clone it, set three variables, migrate, deploy. Extend the plugins as you grow.
 | Health endpoint (`/api/health`) | Ready |
 | Better Auth Dash / Sentinel / DevTools | Ready |
 
-Full breakdown → [docs/features.md](docs/features.md)
+Full breakdown → [docs/features.md](docs/features.md) · product framing → [docs/product.md](docs/product.md)
 
 ## Stack
 
@@ -150,6 +165,7 @@ migrations/              # Committed Drizzle SQL (required for deploys)
 
 | Guide | Description |
 |---|---|
+| [Product](docs/product.md) | IdP framing, dual usage modes, planned identity + billing |
 | [Getting started](docs/getting-started.md) | Local setup walkthrough |
 | [Features](docs/features.md) | Plugins, endpoints, and what ships out of the box |
 | [Deployment](docs/deployment.md) | Railway / Dokploy / Cloudflare sync + classic hosts |
@@ -159,7 +175,13 @@ migrations/              # Committed Drizzle SQL (required for deploys)
 
 ## Roadmap
 
-Ideas and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+Planned on the same account / IdP model (works in both usage modes):
+
+- Bluesky (AT Proto) sign-in + linking  
+- Bitcoin Connect, Lightning, and Ethereum wallet identity  
+- Billing (subscriptions / payments scoped to the account)
+
+Ideas and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/product.md](docs/product.md).
 ## Credits
 
 Forked from [daveyplate/better-auth-nextjs-starter](https://github.com/daveyplate/better-auth-nextjs-starter).

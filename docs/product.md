@@ -1,0 +1,65 @@
+# Product
+
+**Better Auth StarterKit** is a framework and starter for shipping your **own authentication / identity server** on [Better Auth](https://better-auth.com) — a shared issuer other apps can use for sign-in via standard OAuth / OIDC.
+
+## Vision
+
+A more **open, federated, and decentralized** identity future:
+
+- You run the issuer; apps federate via OAuth 2.1 / OpenID Connect
+- Users can bring **web2** credentials *and* **decentralized** identities (protocols, wallets) onto one account
+- Open client registration with **earned trust** (DCR + privilege tiers), not blanket authority for unknown apps
+- Use it as a full-stack template or as a standalone accounts host — same open protocols either way
+
+## What it is
+
+- An **authorization server / OpenID Connect provider** you own and deploy.
+- The Next.js app *is* the auth server (UI + API + discovery + admin), not a login bolt-on for a single product.
+- Bridges **web2 auth** (email, passkeys, OIDC) with **decentralized / crypto identity** on one issuer.
+- **Billing** is planned (account-scoped subscriptions / payments).
+
+## Two ways to use it
+
+| Mode | What you do | Like |
+|---|---|---|
+| **Extend the template** | Keep this Next.js app, build product UI here, run frontend + auth together | Monolith starter you grow into a product |
+| **Accounts-style IdP** | Deploy this primarily as the auth/accounts host; other apps are separate OAuth/OIDC clients | Shared issuer + many client apps |
+
+Both are intentional. Prefer designs that work either way: solid issuer / API / consent / admin first; first-party marketing and app pages are optional on top.
+
+## Identity capabilities
+
+### Ready
+
+- Email & password, passkeys, 2FA, invites, optional organizations
+- OAuth 2.1 / OIDC provider (`@better-auth/oauth-provider`), discovery, consent, admin clients
+- Nostr sign-in + key linking
+
+### Planned
+
+| Capability | Notes |
+|---|---|
+| **Bluesky** | AT Proto identity / login linking |
+| **Bitcoin Connect** | BTC wallet connect as an auth/link method |
+| **Lightning** | Lightning Network auth / payments-adjacent identity |
+| **ETH** | Ethereum wallet sign-in / account linking (e.g. SIWE-style) |
+| **Billing** | Plans and payments scoped to the same account model |
+
+Treat decentralized methods as first-class **sign-in and account-link** paths on the IdP. Protocol-specific OAuth scopes may be reserved for resources — see [client-trust-model.md](./client-trust-model.md).
+
+## Mental model
+
+| Role | Analogy |
+|---|---|
+| This deploy | Your IdP (optionally plus product UI) |
+| Other products / SPAs / APIs | OAuth / OIDC clients |
+| End users | Accounts on *your* issuer |
+
+Discovery and protocol surfaces are documented in [features.md](./features.md).
+
+## See also
+
+- [Features](./features.md) — what ships today  
+- [Getting started](./getting-started.md) — local setup  
+- [Deployment](./deployment.md) — hosts and sync  
+- [Admin panel](./admin-panel.md) — OAuth clients  

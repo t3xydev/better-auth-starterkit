@@ -1,6 +1,6 @@
 # Documentation
 
-Guides for running and extending **Better Auth StarterKit** — a deploy-ready Better Auth server on Next.js + PostgreSQL.
+Guides for running and extending **Better Auth StarterKit** — your own Better Auth–based OpenID / OAuth **identity server** on Next.js + PostgreSQL.
 
 This kit is a fork of [daveyplate/better-auth-nextjs-starter](https://github.com/daveyplate/better-auth-nextjs-starter). Maintained at [t3xy.dev](https://t3xy.dev). See [Credits](../README.md#credits) in the README.
 
@@ -8,14 +8,16 @@ This kit is a fork of [daveyplate/better-auth-nextjs-starter](https://github.com
 
 ## Start here
 
-1. [Getting started](./getting-started.md) — install, env, migrate, run locally  
-2. [Features](./features.md) — what ships out of the box  
-3. [Deployment](./deployment.md) — synced targets (Railway, Dokploy, Cloudflare) + classic hosts  
+1. [Product](./product.md) — IdP framing, dual usage modes, roadmap identity methods  
+2. [Getting started](./getting-started.md) — install, env, migrate, run locally  
+3. [Features](./features.md) — what ships out of the box  
+4. [Deployment](./deployment.md) — synced targets (Railway, Dokploy, Cloudflare) + classic hosts  
 
 ## Reference
 
 | Doc | When you need it |
 |---|---|
+| [Product](./product.md) | What this kit is for (accounts-style IdP vs extend template) |
 | [Environment variables](./environment-variables.md) | Configuring secrets, SMTP, branding, analytics |
 | [Admin panel](./admin-panel.md) | Creating and managing OAuth / OIDC clients |
 | [Client trust model](./client-trust-model.md) | Trust tiers, DCR defaults, scope gating |
