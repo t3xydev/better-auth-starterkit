@@ -1,3 +1,12 @@
+---
+name: modular-dev
+description: >-
+  Guides subtle module-style customization so product changes stay additive and
+  conflict-light when syncing the starter kit. Use when adding features,
+  customizing auth/UI/deploy, extending plugins, or reducing merge conflicts
+  with upstream / kit/main.
+---
+
 # Modular development (light)
 
 Tool-agnostic. Use when adding features, customizing auth/UI/deploy, extending plugins, or reducing merge conflicts with upstream / `kit/main`.
@@ -10,7 +19,7 @@ Goal: **customize without forking the kit’s spine.** Prefer new files and thin
 2. **One wiring file** — touch `src/lib/auth.ts`, a layout, or a route only to import/register; keep logic elsewhere.
 3. **Wrap, don’t fork** — compose kit components; avoid copying whole UI trees to tweak one prop.
 4. **Env-gate product toggles** — match existing kit style (`NEXT_PUBLIC_*`, server env) instead of hardcoding forks.
-5. **Leave generated deploy alone** — change `deploy/config.ts` + `pnpm deploy:sync` (see [`deploy-targets.md`](deploy-targets.md)).
+5. **Leave generated deploy alone** — change `deploy/config.ts` + `pnpm deploy:sync` (see [`deploy-targets`](../deploy-targets/SKILL.md)).
 
 ## Where product code lives
 
@@ -58,7 +67,7 @@ When you must change a kit file:
 
 ## Sync awareness
 
-If the branch layout from [`eject-and-follow.md`](eject-and-follow.md) is in use:
+If the branch layout from [`eject-and-follow`](../eject-and-follow/SKILL.md) is in use:
 
 - Product work → `main` (and feature branches off it)
 - Starter line → `dev`

@@ -1,3 +1,12 @@
+---
+name: eject-and-follow
+description: >-
+  Ejects a fork onto product branches while keeping kit-tracking branches for
+  upstream sync and selective merges. Use when ejecting from the starter kit,
+  following upstream, syncing kit updates, cherry-picking starter changes, or
+  setting up origin/upstream remotes and branch layout.
+---
+
 # Eject and follow upstream
 
 Tool-agnostic. Any coding agent should follow this when ejecting from the starter kit, following upstream, syncing kit updates, cherry-picking starter changes, or setting up remotes and branch layout.
@@ -122,7 +131,7 @@ When merging kit → main:
 
 1. Prefer **main** for files under `src/modules/` and clear product overrides.
 2. Prefer **kit** / **dev** for starter core you have not customized.
-3. For shared composition files (`src/lib/auth.ts`, layouts, deploy config): keep **thin wiring**; move custom logic out (see [`modular-dev.md`](modular-dev.md)).
+3. For shared composition files (`src/lib/auth.ts`, layouts, deploy config): keep **thin wiring**; move custom logic out (see [`modular-dev`](../modular-dev/SKILL.md)).
 4. Prefer **main** for `.cursor/rules/project-identity.mdc` — keep it deleted after eject.
 5. Re-run `pnpm deploy:sync` after kit changes touch `deploy/config.ts`.
 
@@ -152,6 +161,6 @@ Eject / follow:
 
 ## Related
 
-- Customization with fewer conflicts → [`modular-dev.md`](modular-dev.md)
-- Deploy file edits → [`deploy-targets.md`](deploy-targets.md)
-- Index → [`../AGENTS.md`](../AGENTS.md)
+- Customization with fewer conflicts → [`modular-dev`](../modular-dev/SKILL.md)
+- Deploy file edits → [`deploy-targets`](../deploy-targets/SKILL.md)
+- Agent index → [`AGENTS.md`](../../AGENTS.md)

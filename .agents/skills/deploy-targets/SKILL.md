@@ -1,12 +1,21 @@
+---
+name: deploy-targets
+description: >-
+  Syncs Railway, Dokploy, and Cloudflare deploy configs from deploy/config.ts.
+  Use when adding or changing deploy targets, running deploy:sync, editing
+  Dockerfile/railway.toml/docker-compose/wrangler, or switching Cloudflare
+  Containers vs Workers/OpenNext.
+---
+
 # Deploy targets
 
 Tool-agnostic. Use when adding or changing deploy targets, running `deploy:sync`, editing Dockerfile / railway.toml / docker-compose / wrangler, or switching Cloudflare Containers vs Workers/OpenNext.
 
 ## Rules
 
-1. **Edit** [`deploy/config.ts`](../deploy/config.ts) only — never hand-edit generated files.
+1. **Edit** [`deploy/config.ts`](../../../deploy/config.ts) only — never hand-edit generated files.
 2. After config changes, run **`pnpm deploy:sync`**.
-3. Point users to [`docs/framework/deployment.mdx`](../docs/framework/deployment.mdx) for platform UI steps.
+3. Point users to [`docs/framework/deployment.mdx`](../../../docs/framework/deployment.mdx) for platform UI steps.
 
 Generated (do not hand-edit): `Dockerfile`, `.dockerignore`, `docker-compose.yml`, `railway.toml`, `wrangler.jsonc`, and `open-next.config.ts` (Workers mode only).
 

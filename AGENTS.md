@@ -1,16 +1,17 @@
 # Agent instructions
 
-These instructions apply to **any** coding agent working in this repository (Cursor, Claude Code, Codex, Copilot, Gemini, etc.). Prefer this file and `agents/` over tool-specific skill copies.
+These instructions apply to **any** coding agent working in this repository (Cursor, Claude Code, Codex, Copilot, Gemini, etc.). Prefer this file and `.agents/skills/` over tool-specific skill copies.
 
 ## Kit workflows
 
 | Topic | Canonical doc |
 |-------|----------------|
-| Eject from starter / follow upstream / branch model | [`agents/eject-and-follow.md`](agents/eject-and-follow.md) |
-| Customize with fewer merge conflicts | [`agents/modular-dev.md`](agents/modular-dev.md) |
-| Deploy target sync | [`agents/deploy-targets.md`](agents/deploy-targets.md) |
+| Eject from starter / follow upstream / branch model | [`.agents/skills/eject-and-follow/SKILL.md`](.agents/skills/eject-and-follow/SKILL.md) |
+| Customize with fewer merge conflicts | [`.agents/skills/modular-dev/SKILL.md`](.agents/skills/modular-dev/SKILL.md) |
+| Deploy target sync | [`.agents/skills/deploy-targets/SKILL.md`](.agents/skills/deploy-targets/SKILL.md) |
+| Keep product docs in sync | [`.agents/skills/keep-docs-updated/SKILL.md`](.agents/skills/keep-docs-updated/SKILL.md) |
 
-When the user asks to eject, sync the kit, or set up product vs starter branches, **read and follow** `agents/eject-and-follow.md` before acting.
+When the user asks to eject, sync the kit, or set up product vs starter branches, **read and follow** `.agents/skills/eject-and-follow/SKILL.md` before acting.
 
 ## Branch model (summary)
 

@@ -55,9 +55,7 @@ yarn-error.log*
 # macos
 .DS_Store
 ._*
-# workspace agent (keep project skills versioned)
+# workspace agent (keep project rules versioned; skills live in .agents/skills/)
 .cursor/*
-!.cursor/skills/
-!.cursor/skills/**
 !.cursor/rules/
 !.cursor/rules/**
