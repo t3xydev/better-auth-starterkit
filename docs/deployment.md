@@ -2,15 +2,77 @@
 
 > Part of the [docs index](./README.md). For local setup, see [getting started](./getting-started.md).
 
-This app uses PostgreSQL and Drizzle migrations. Before the Next.js build, apply any pending migrations so the database matches the committed schema.
+This app uses PostgreSQL and Drizzle migrations. Prefer the **synced deploy targets** below for Cloudflare, Railway, and Dokploy. Other hosts can still use the classic build/start commands.
 
-Use this **custom build command** on platforms that let you override the default build step (Render, Railway, Fly.io, etc.):
+## Synced deploy targets
+
+One source of truth: [`deploy/config.ts`](../deploy/config.ts). After you change it, regenerate platform files:
+
+```bash
+pnpm deploy:sync
+```
+
+Do not hand-edit generated files (`Dockerfile`, `.dockerignore`, `docker-compose.yml`, `railway.toml`, `wrangler.jsonc`). Edit the config and re-sync.
+
+| Target | Files | Notes |
+|--------|--------|--------|
+| **Railway** | `railway.toml` + `Dockerfile` | Dockerfile builder; healthcheck `/api/health` |
+| **Dokploy** | `docker-compose.yml` + `Dockerfile` | Traefik labels + `dokploy-network`; set `dokploy.domain` |
+| **Cloudflare** | `wrangler.jsonc` + `Dockerfile` (default) | **Containers** by default; switch to Workers in config |
+
+Shared container behavior: image build runs `pnpm build` only. On start, the container runs `pnpm db:migrate && pnpm start` so `DATABASE_URL` is required at **runtime**, not image-build time.
+
+Required env on every target: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (see [environment-variables.md](./environment-variables.md)).
+
+### Railway
+
+1. Create a service from this repo and attach Postgres (or set `DATABASE_URL`).
+2. Set `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` (your public URL).
+3. Deploy — `railway.toml` selects the Dockerfile and healthcheck.
+
+### Dokploy
+
+1. Set `dokploy.domain` (and optionally `dokploy.routerName`) in `deploy/config.ts`, then `pnpm deploy:sync`.
+2. Create a **Compose** service; Compose path `./docker-compose.yml`.
+3. Set the required env vars in Dokploy.
+4. Deploy. Traefik uses the Host rule from config.
+
+You can also deploy as a single **Dockerfile** app (path `./Dockerfile`) without Compose if you manage domains in the Dokploy UI.
+
+### Cloudflare
+
+Default runtime is **Containers** (`cloudflare.runtime: "containers"` in `deploy/config.ts`).
+
+**Containers (default)**
+
+1. Install CLI deps: `pnpm add -D wrangler @cloudflare/containers`
+2. Ensure Docker is available locally for image builds.
+3. Set secrets/vars for the container (at least the three required env vars) via the Cloudflare dashboard or `wrangler secret`.
+4. Deploy: `pnpm cf:deploy` (or `wrangler deploy`).
+
+The Worker at `deploy/cloudflare/container-worker.ts` proxies all traffic to the Next.js container on port 3000.
+
+**Workers / OpenNext (opt-in)**
+
+1. In `deploy/config.ts`, set `cloudflare.runtime: "workers"`.
+2. Run `pnpm deploy:sync` (writes OpenNext-shaped `wrangler.jsonc` + `open-next.config.ts`).
+3. Install: `pnpm add -D wrangler @opennextjs/cloudflare`
+4. Configure [Hyperdrive](https://developers.cloudflare.com/hyperdrive/) for Postgres and bind it in `wrangler.jsonc` — this kit’s `pg` + Drizzle path is not Hyperdrive-wired yet; treat Workers as advanced.
+5. Build/deploy with OpenNext (`opennextjs-cloudflare deploy`) or follow [Cloudflare’s Next.js guide](https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/).
+
+Switch back with `cloudflare.runtime: "containers"` and `pnpm deploy:sync`.
+
+---
+
+## Classic build command (Render, Fly, etc.)
+
+On platforms that override build/start without Docker:
 
 ```bash
 pnpm db:migrate && pnpm build
 ```
 
-Set the **start command** to:
+Start:
 
 ```bash
 pnpm start
@@ -26,6 +88,8 @@ Commit schema and migration files from `pnpm db:sync` locally before deploying. 
 |------|--------|---------|
 | 1 | `pnpm db:migrate` | Applies pending Drizzle migrations to the database |
 | 2 | `pnpm build` | Runs `next build` to produce the production app |
+
+On **container** targets, step 1 runs at container start instead of image build.
 
 ### `pnpm db:migrate`
 
@@ -53,17 +117,21 @@ pnpm db:auth && pnpm db:gen && pnpm db:migrate
 
 After `db:sync`, commit the updated schema and any new files under `migrations/`.
 
+### `pnpm deploy:sync`
+
+Regenerates Railway / Dokploy / Cloudflare config files from `deploy/config.ts`.
+
 ---
 
-## Required environment variables at build time
+## Required environment variables
 
-`db:migrate` connects to PostgreSQL during the build, so these must be available **before** the build starts—not only at runtime.
+| Variable | Container runtime | Classic build (`migrate && build`) | Description |
+|----------|-------------------|--------------------------------------|-------------|
+| `DATABASE_URL` | Yes (start) | Yes (build) | PostgreSQL connection string |
+| `BETTER_AUTH_SECRET` | Yes | Runtime | Session/token signing secret |
+| `BETTER_AUTH_URL` | Yes | Runtime | Public base URL of the auth server |
 
-| Variable | Required at build | Description |
-|----------|-------------------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string used by Drizzle |
-
-See [environment-variables.md](./environment-variables.md) for the full list (including runtime-only vars like `BETTER_AUTH_SECRET`).
+See [environment-variables.md](./environment-variables.md) for the full list.
 
 ---
 
@@ -80,7 +148,7 @@ In your Web Service settings:
 
 Attach a PostgreSQL instance and set `DATABASE_URL` (and other required vars) on the service. Render injects linked database URLs into the build environment automatically.
 
-### Railway / Fly.io / similar
+### Fly.io / similar (non-Docker)
 
 Use the same build and start commands. Ensure `DATABASE_URL` is set in the service environment before the build phase runs.
 
@@ -95,13 +163,21 @@ Vercel builds do not run against a persistent database by default. Options:
 
 ## Local production check
 
-To verify the same flow locally:
+Classic:
 
 ```bash
 pnpm db:migrate && pnpm build && pnpm start
 ```
 
-Ensure `.env` (or exported vars) includes a valid `DATABASE_URL` pointing at a database you can migrate.
+Container-style (Docker):
+
+```bash
+pnpm deploy:sync
+docker build -t better-auth-starterkit .
+docker run --env-file .env -p 3000:3000 better-auth-starterkit
+```
+
+Ensure `.env` includes a valid `DATABASE_URL` pointing at a database you can migrate.
 
 ---
 
@@ -109,8 +185,10 @@ Ensure `.env` (or exported vars) includes a valid `DATABASE_URL` pointing at a d
 
 | Symptom | Likely cause |
 |---------|--------------|
-| Build fails on `db:migrate` with connection error | `DATABASE_URL` missing or wrong during build |
-| App starts but auth tables missing | Build command skipped `db:migrate`; migrations never ran |
+| Build fails on `db:migrate` with connection error | `DATABASE_URL` missing or wrong during classic build |
+| Container exits on start during migrate | `DATABASE_URL` missing at runtime |
+| App starts but auth tables missing | Migrations never ran |
 | Runtime errors about missing columns | New migrations not committed; run `pnpm db:sync` locally, commit, redeploy |
+| Stale Railway/Dokploy/CF config | Edit `deploy/config.ts` and run `pnpm deploy:sync` |
 
 After changing Better Auth plugins or adding columns, run `pnpm db:sync` locally and commit the updated schema and migration files before deploying.

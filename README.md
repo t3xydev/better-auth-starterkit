@@ -107,16 +107,20 @@ Open [http://localhost:3000](http://localhost:3000) — you’ll land on sign-in
 > With `NEXT_PUBLIC_INVITE_ONLY=true`, the first user can still sign up to bootstrap; later sign-ups need an invite — [invitations](docs/invitations.md).  
 > Details in [admin panel docs](docs/admin-panel.md).
 
-## Deploy in one build command
+## Deploy
 
-On Render, Railway, Fly, and similar hosts:
+Synced targets (Cloudflare Containers, Railway, Dokploy) live in [`deploy/config.ts`](deploy/config.ts). After edits:
 
-| Setting | Value |
-|---|---|
-| **Build** | `pnpm db:migrate && pnpm build` |
-| **Start** | `pnpm start` |
+```bash
+pnpm deploy:sync
+```
 
-`DATABASE_URL` must be available at **build time** so migrations can run. Platform notes and troubleshooting → [docs/deployment.md](docs/deployment.md).
+| Setting | Classic hosts (Render, Fly, …) | Containers (Railway / Dokploy / CF) |
+|---|---|---|
+| **Build** | `pnpm db:migrate && pnpm build` | Image: `pnpm build` |
+| **Start** | `pnpm start` | `pnpm db:migrate && pnpm start` |
+
+`DATABASE_URL` is required at **build** for classic migrate-during-build, or at **container start** for Docker targets. Platform notes → [docs/deployment.md](docs/deployment.md).
 
 ```mermaid
 flowchart LR
@@ -124,10 +128,9 @@ flowchart LR
   B --> C[pnpm db:sync]
   C --> D[pnpm dev]
   B --> E[Deploy]
-  E --> F["migrate && build"]
+  E --> F["migrate && build / container start"]
   F --> G[Auth server live]
 ```
-
 ## Project layout
 
 ```text
@@ -139,25 +142,24 @@ src/
     ├── auth.ts          # Better Auth server config (plugins live here)
     ├── auth-client.ts   # Browser client
     └── email.ts         # SMTP / console mailer
+deploy/                  # Shared deploy config + sync (Railway / Dokploy / Cloudflare)
 docs/                    # Guides you’re reading
 migrations/              # Committed Drizzle SQL (required for deploys)
 ```
-
 ## Documentation
 
 | Guide | Description |
 |---|---|
 | [Getting started](docs/getting-started.md) | Local setup walkthrough |
 | [Features](docs/features.md) | Plugins, endpoints, and what ships out of the box |
-| [Deployment](docs/deployment.md) | Build/start commands per platform |
+| [Deployment](docs/deployment.md) | Railway / Dokploy / Cloudflare sync + classic hosts |
 | [Environment variables](docs/environment-variables.md) | Full env reference |
 | [Admin panel](docs/admin-panel.md) | Manage OAuth clients |
 | [Docs index](docs/README.md) | Everything in one place |
 
 ## Roadmap
 
-More deploy helpers and features are coming. Ideas and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
-
+Ideas and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Credits
 
 Forked from [daveyplate/better-auth-nextjs-starter](https://github.com/daveyplate/better-auth-nextjs-starter).

@@ -13,7 +13,10 @@
         "db:auth": "npx auth generate -y",
         "db:gen": "npx drizzle-kit generate",
         "db:migrate": "npx drizzle-kit migrate",
-        "db:sync": "pnpm db:auth && pnpm db:gen && pnpm db:migrate"
+        "db:sync": "pnpm db:auth && pnpm db:gen && pnpm db:migrate",
+        "deploy:sync": "tsx deploy/sync.ts",
+        "cf:deploy": "wrangler deploy",
+        "cf:preview": "wrangler dev"
     },
     "dependencies": {
         "@better-auth/infra": "^0.3.7",
@@ -63,6 +66,7 @@
         "esbuild": "^0.25.10",
         "tailwindcss": "^4.1.13",
         "tailwindcss-safe-area": "^1.1.0",
+        "tsx": "^4.23.5",
         "turbo": "^2.5.7",
         "tw-animate-css": "^1.3.8",
         "typescript": "^5.9.2"

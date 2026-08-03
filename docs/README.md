@@ -10,7 +10,7 @@ This kit is a fork of [daveyplate/better-auth-nextjs-starter](https://github.com
 
 1. [Getting started](./getting-started.md) — install, env, migrate, run locally  
 2. [Features](./features.md) — what ships out of the box  
-3. [Deployment](./deployment.md) — production build command and platform notes  
+3. [Deployment](./deployment.md) — synced targets (Railway, Dokploy, Cloudflare) + classic hosts  
 
 ## Reference
 
