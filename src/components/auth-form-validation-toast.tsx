@@ -10,6 +10,7 @@ import { toast } from "sonner"
 export function AuthFormValidationToast({ children }: { children: ReactNode }) {
     return (
         <div
+            className="w-full max-w-sm"
             onSubmitCapture={(event) => {
                 const form = event.currentTarget.querySelector("form")
                 if (!form) return

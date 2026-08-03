@@ -42,12 +42,12 @@ export default async function AuthPage({
         }
 
         return (
-            <main className="container flex grow flex-col items-center justify-center gap-4 self-center p-4 md:p-6">
+            <main className="container flex w-full grow flex-col items-center justify-center gap-4 self-center p-4 md:p-6">
                 <InviteOnlySignUpView
                     allowed={hasValidInvite || bootstrap}
                     appName={appName}
                 />
-                <p className="w-3xs text-center text-muted-foreground text-xs">
+                <p className="w-full max-w-sm text-center text-muted-foreground text-xs">
                     By continuing, you agree to our{" "}
                     <Link className="text-primary" href="/terms">
                         Terms of Service
@@ -63,7 +63,7 @@ export default async function AuthPage({
     }
 
     return (
-        <main className="container flex grow flex-col items-center justify-center gap-4 self-center p-4 md:p-6">
+        <main className="container flex w-full grow flex-col items-center justify-center gap-4 self-center p-4 md:p-6">
             {path === "two-factor" ? (
                 <AuthFormValidationToast>
                     <TwoFactorView />
@@ -77,7 +77,7 @@ export default async function AuthPage({
             )}
 
             {!["callback", "sign-out"].includes(path) && (
-                <p className="w-3xs text-center text-muted-foreground text-xs">
+                <p className="w-full max-w-sm text-center text-muted-foreground text-xs">
                     By continuing, you agree to our{" "}
                     <Link
                         className="text-primary"
