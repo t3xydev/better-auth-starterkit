@@ -1,6 +1,6 @@
 /**
  * Client privilege and trust model.
- * @see docs/client-trust-model.md
+ * @see content/docs/client-trust-model.mdx
  */
 
 export const TRUST_TIERS = [

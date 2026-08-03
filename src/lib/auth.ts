@@ -29,7 +29,7 @@ import { INVITE_TOKEN_COOKIE, inviteOnly } from "./invite-only"
 import { isUsableInviteToken } from "./invite-only-server"
 import { organizationsEnabled } from "./organizations"
 
-/** Bridges better-invite `$ERROR_CODES` to Better Auth’s `RawError` shape. See `docs/typescript-better-invite.md`. */
+/** Bridges better-invite `$ERROR_CODES` to Better Auth’s `RawError` shape. See `content/docs/typescript-better-invite.mdx`. */
 type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> & Pick<BetterAuthPlugin, "$ERROR_CODES">
 
 const ALLOWED_SCOPES = PROVIDER_SCOPES

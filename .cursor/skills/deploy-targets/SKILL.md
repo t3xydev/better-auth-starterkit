@@ -13,7 +13,7 @@ description: >-
 
 1. **Edit** [`deploy/config.ts`](../../../deploy/config.ts) only — never hand-edit generated files.
 2. After config changes, run **`pnpm deploy:sync`**.
-3. Point users to [`docs/deployment.md`](../../../docs/deployment.md) for platform UI steps.
+3. Point users to [`content/docs/deployment.mdx`](../../../content/docs/deployment.mdx) for platform UI steps.
 
 Generated (do not hand-edit): `Dockerfile`, `.dockerignore`, `docker-compose.yml`, `railway.toml`, `wrangler.jsonc`, and `open-next.config.ts` (Workers mode only).
 
