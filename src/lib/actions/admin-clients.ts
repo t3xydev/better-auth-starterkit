@@ -5,6 +5,16 @@ import { eq, desc } from "drizzle-orm"
 import { db } from "@/database/db"
 import { oauthClients } from "@/database/schema"
 import { auth } from "@/lib/auth"
+import {
+    assertScopesForTier,
+    canSkipConsent,
+    canUseClientCredentials,
+    filterScopesForTier,
+    getTrustTier,
+    isTrustTier,
+    mergeTrustMetadata,
+    type TrustTier,
+} from "@/lib/client-trust"
 
 async function requireAdmin() {
     const session = await auth.api.getSession({ headers: await headers() })
@@ -41,18 +51,36 @@ export async function createClient(data: {
     enableEndSession?: boolean
     type?: string
     uri?: string
+    trustTier?: TrustTier
 }) {
-    await requireAdmin()
+    const session = await requireAdmin()
+    const trustTier: TrustTier = data.trustTier ?? "developer"
+
+    if (data.skipConsent && !canSkipConsent(trustTier)) {
+        throw new Error("Consent bypass is only allowed for first-party clients")
+    }
+
+    const scopes = filterScopesForTier(
+        data.scopes ?? ["openid", "profile", "email"],
+        trustTier,
+    )
+    assertScopesForTier(scopes, trustTier)
 
     const result = await auth.api.adminCreateOAuthClient({
         headers: await headers(),
         body: {
             redirect_uris: data.redirectUris,
             client_name: data.name,
-            scope: data.scopes?.join(" ") || "openid profile email offline_access",
-            skip_consent: data.skipConsent ?? false,
+            scope: scopes.join(" ") || "openid profile email",
+            skip_consent: data.skipConsent === true && canSkipConsent(trustTier),
             enable_end_session: data.enableEndSession ?? true,
             client_secret_expires_at: 0,
+            require_pkce: true,
+            metadata: mergeTrustMetadata({}, {
+                trustTier,
+                reviewedAt: new Date().toISOString(),
+                reviewedBy: session.user.id,
+            }),
             ...(data.uri && { client_uri: data.uri }),
             ...(data.type === "public" && { token_endpoint_auth_method: "none" }),
         },
@@ -84,9 +112,36 @@ export async function updateClient(
         tos?: string | null
         policy?: string | null
         isPublic?: boolean | null
+        trustTier?: TrustTier
     },
 ) {
-    await requireAdmin()
+    const session = await requireAdmin()
+
+    const existing = await getClient(id)
+    if (!existing) throw new Error("Client not found")
+
+    const trustTier = data.trustTier ?? getTrustTier(existing.metadata)
+
+    if (data.skipConsent === true && !canSkipConsent(trustTier)) {
+        throw new Error("Consent bypass is only allowed for first-party clients")
+    }
+
+    if (data.grantTypes?.includes("client_credentials") && !canUseClientCredentials(trustTier)) {
+        throw new Error("client_credentials requires partner or first-party trust")
+    }
+
+    if (data.scopes !== undefined && data.scopes !== null) {
+        assertScopesForTier(data.scopes, trustTier)
+    }
+
+    const metadata =
+        data.trustTier !== undefined
+            ? mergeTrustMetadata(existing.metadata, {
+                  trustTier: data.trustTier,
+                  reviewedAt: new Date().toISOString(),
+                  reviewedBy: session.user.id,
+              })
+            : undefined
 
     await db
         .update(oauthClients)
@@ -96,7 +151,10 @@ export async function updateClient(
             ...(data.icon !== undefined && { icon: data.icon }),
             ...(data.redirectUris !== undefined && { redirectUris: data.redirectUris }),
             ...(data.scopes !== undefined && { scopes: data.scopes }),
-            ...(data.skipConsent !== undefined && { skipConsent: data.skipConsent }),
+            ...(data.skipConsent !== undefined && {
+                skipConsent:
+                    data.skipConsent === true ? canSkipConsent(trustTier) : data.skipConsent,
+            }),
             ...(data.enableEndSession !== undefined && { enableEndSession: data.enableEndSession }),
             ...(data.requirePKCE !== undefined && { requirePKCE: data.requirePKCE }),
             ...(data.disabled !== undefined && { disabled: data.disabled }),
@@ -106,11 +164,45 @@ export async function updateClient(
             ...(data.tos !== undefined && { tos: data.tos }),
             ...(data.policy !== undefined && { policy: data.policy }),
             ...(data.isPublic !== undefined && { public: data.isPublic }),
+            ...(metadata !== undefined && { metadata }),
             updatedAt: new Date(),
         })
         .where(eq(oauthClients.id, id))
 
     return { success: true }
+}
+
+export async function promoteClientTrustTier(id: string, trustTier: TrustTier) {
+    if (!isTrustTier(trustTier)) throw new Error("Invalid trust tier")
+    const session = await requireAdmin()
+
+    const existing = await getClient(id)
+    if (!existing) throw new Error("Client not found")
+
+    const metadata = mergeTrustMetadata(existing.metadata, {
+        trustTier,
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: session.user.id,
+    })
+
+    const nextScopes = filterScopesForTier(existing.scopes, trustTier)
+    const nextGrantTypes = (existing.grantTypes ?? []).filter((gt) => {
+        if (gt === "client_credentials") return canUseClientCredentials(trustTier)
+        return true
+    })
+
+    await db
+        .update(oauthClients)
+        .set({
+            metadata,
+            scopes: nextScopes,
+            grantTypes: nextGrantTypes,
+            skipConsent: canSkipConsent(trustTier) ? existing.skipConsent : false,
+            updatedAt: new Date(),
+        })
+        .where(eq(oauthClients.id, id))
+
+    return { success: true, trustTier }
 }
 
 export async function deleteClient(id: string) {

@@ -18,7 +18,20 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { createClient } from "@/lib/actions/admin-clients"
+import {
+    TRUST_TIERS,
+    TRUST_TIER_LABELS,
+    canSkipConsent,
+    type TrustTier,
+} from "@/lib/client-trust"
 
 export function CreateClientDialog() {
     const router = useRouter()
@@ -27,7 +40,8 @@ export function CreateClientDialog() {
 
     const [name, setName] = useState("")
     const [redirectUri, setRedirectUri] = useState("")
-    const [skipConsent, setSkipConsent] = useState(true)
+    const [trustTier, setTrustTier] = useState<TrustTier>("developer")
+    const [skipConsent, setSkipConsent] = useState(false)
     const [enableEndSession, setEnableEndSession] = useState(true)
 
     const [created, setCreated] = useState<{
@@ -40,7 +54,8 @@ export function CreateClientDialog() {
     function reset() {
         setName("")
         setRedirectUri("")
-        setSkipConsent(true)
+        setTrustTier("developer")
+        setSkipConsent(false)
         setEnableEndSession(true)
         setCreated(null)
         setCopiedField(null)
@@ -74,7 +89,8 @@ export function CreateClientDialog() {
                 const result = await createClient({
                     name: name.trim(),
                     redirectUris: uris,
-                    skipConsent,
+                    trustTier,
+                    skipConsent: canSkipConsent(trustTier) ? skipConsent : false,
                     enableEndSession,
                 })
                 setCreated({
@@ -202,12 +218,42 @@ export function CreateClientDialog() {
                                     placeholder="http://localhost:3001/callback"
                                 />
                             </div>
+                            <div className="space-y-2">
+                                <Label>Trust tier</Label>
+                                <Select
+                                    value={trustTier}
+                                    onValueChange={(v) => {
+                                        const next = v as TrustTier
+                                        setTrustTier(next)
+                                        if (!canSkipConsent(next)) setSkipConsent(false)
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {TRUST_TIERS.filter((t) => t !== "unknown").map((tier) => (
+                                            <SelectItem key={tier} value={tier}>
+                                                {TRUST_TIER_LABELS[tier]}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="skip-consent">Skip consent screen</Label>
+                                <div>
+                                    <Label htmlFor="skip-consent">Skip consent screen</Label>
+                                    {!canSkipConsent(trustTier) && (
+                                        <p className="text-xs text-muted-foreground">
+                                            First-party only
+                                        </p>
+                                    )}
+                                </div>
                                 <Switch
                                     id="skip-consent"
-                                    checked={skipConsent}
+                                    checked={canSkipConsent(trustTier) && skipConsent}
                                     onCheckedChange={setSkipConsent}
+                                    disabled={!canSkipConsent(trustTier)}
                                 />
                             </div>
                             <div className="flex items-center justify-between">

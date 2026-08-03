@@ -20,6 +20,11 @@ import {
     allowDynamicClientRegistration,
     allowUnauthenticatedClientRegistration,
 } from "./dynamic-client-registration"
+import {
+    DCR_DEFAULT_SCOPES,
+    PROVIDER_SCOPES,
+    PUBLIC_SCOPES,
+} from "./client-trust"
 import { INVITE_TOKEN_COOKIE, inviteOnly } from "./invite-only"
 import { isUsableInviteToken } from "./invite-only-server"
 import { organizationsEnabled } from "./organizations"
@@ -27,7 +32,7 @@ import { organizationsEnabled } from "./organizations"
 /** Bridges better-invite `$ERROR_CODES` to Better Auth’s `RawError` shape. See `docs/typescript-better-invite.md`. */
 type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> & Pick<BetterAuthPlugin, "$ERROR_CODES">
 
-const ALLOWED_SCOPES = ["openid", "profile", "email", "offline_access"] as const
+const ALLOWED_SCOPES = PROVIDER_SCOPES
 
 const authOrigin = (
     process.env.BETTER_AUTH_URL || "http://localhost:3000"
@@ -222,7 +227,9 @@ export const auth = betterAuth({
             allowDynamicClientRegistration,
             allowUnauthenticatedClientRegistration,
             allowPublicClientPrelogin: false,
-            clientRegistrationAllowedScopes: [...ALLOWED_SCOPES],
+            clientRegistrationDefaultScopes: [...DCR_DEFAULT_SCOPES],
+            clientRegistrationAllowedScopes: [...PUBLIC_SCOPES],
+            clientRegistrationClientSecretExpiration: "30d",
             rateLimit: {
                 register: { window: 60, max: 3 },
                 authorize: { window: 60, max: 20 },

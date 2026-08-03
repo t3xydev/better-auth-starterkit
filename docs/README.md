@@ -18,6 +18,7 @@ This kit is a fork of [daveyplate/better-auth-nextjs-starter](https://github.com
 |---|---|
 | [Environment variables](./environment-variables.md) | Configuring secrets, SMTP, branding, analytics |
 | [Admin panel](./admin-panel.md) | Creating and managing OAuth / OIDC clients |
+| [Client trust model](./client-trust-model.md) | Trust tiers, DCR defaults, scope gating |
 | [Invitations](./invitations.md) | better-invite setup, activate UI, admin invites |
 | [TypeScript: better-invite](./typescript-better-invite.md) | Plugin type shim used in this repo |
 

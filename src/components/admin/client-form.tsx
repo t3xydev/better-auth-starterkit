@@ -36,6 +36,13 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { RedirectUriInput } from "./redirect-uri-input"
 import {
     updateClient,
@@ -43,9 +50,18 @@ import {
     rotateClientSecret,
 } from "@/lib/actions/admin-clients"
 import type { OAuthClientRow } from "@/lib/actions/admin-clients"
+import {
+    PROVIDER_SCOPES,
+    TRUST_TIERS,
+    TRUST_TIER_LABELS,
+    canSkipConsent,
+    canUseClientCredentials,
+    getTrustTier,
+    scopesAllowedForTier,
+    type TrustTier,
+} from "@/lib/client-trust"
 
-const AVAILABLE_SCOPES = ["openid", "profile", "email", "offline_access"]
-const GRANT_TYPES = ["authorization_code", "refresh_token", "client_credentials"]
+const GRANT_TYPES = ["authorization_code", "refresh_token", "client_credentials"] as const
 
 export function ClientForm({ client }: { client: OAuthClientRow }) {
     const router = useRouter()
@@ -57,14 +73,19 @@ export function ClientForm({ client }: { client: OAuthClientRow }) {
     const [redirectUris, setRedirectUris] = useState<string[]>(client.redirectUris ?? [])
     const [scopes, setScopes] = useState<string[]>(client.scopes ?? [])
     const [grantTypes, setGrantTypes] = useState<string[]>(client.grantTypes ?? [])
+    const [trustTier, setTrustTier] = useState<TrustTier>(getTrustTier(client.metadata))
     const [skipConsent, setSkipConsent] = useState(client.skipConsent ?? false)
     const [enableEndSession, setEnableEndSession] = useState(client.enableEndSession ?? false)
-    const [requirePKCE, setRequirePKCE] = useState(client.requirePKCE ?? false)
+    const [requirePKCE, setRequirePKCE] = useState(client.requirePKCE ?? true)
     const [isPublic, setIsPublic] = useState(client.public ?? false)
     const [disabled, setDisabled] = useState(client.disabled ?? false)
     const [tos, setTos] = useState(client.tos ?? "")
     const [policy, setPolicy] = useState(client.policy ?? "")
     const [contacts, setContacts] = useState((client.contacts ?? []).join(", "))
+
+    const allowedScopes = scopesAllowedForTier(trustTier)
+    const skipConsentAllowed = canSkipConsent(trustTier)
+    const m2mAllowed = canUseClientCredentials(trustTier)
 
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [showRotateDialog, setShowRotateDialog] = useState(false)
@@ -85,9 +106,22 @@ export function ClientForm({ client }: { client: OAuthClientRow }) {
     }
 
     function toggleGrantType(gt: string) {
+        if (gt === "client_credentials" && !m2mAllowed) return
         setGrantTypes((prev) =>
             prev.includes(gt) ? prev.filter((g) => g !== gt) : [...prev, gt],
         )
+    }
+
+    function handleTrustTierChange(next: TrustTier) {
+        setTrustTier(next)
+        const allowed = new Set(scopesAllowedForTier(next))
+        setScopes((prev) =>
+            prev.filter((s) => allowed.has(s as (typeof PROVIDER_SCOPES)[number])),
+        )
+        if (!canSkipConsent(next)) setSkipConsent(false)
+        if (!canUseClientCredentials(next)) {
+            setGrantTypes((prev) => prev.filter((g) => g !== "client_credentials"))
+        }
     }
 
     function handleSave() {
@@ -104,7 +138,8 @@ export function ClientForm({ client }: { client: OAuthClientRow }) {
                     redirectUris,
                     scopes: scopes.length > 0 ? scopes : null,
                     grantTypes: grantTypes.length > 0 ? grantTypes : null,
-                    skipConsent,
+                    trustTier,
+                    skipConsent: skipConsentAllowed ? skipConsent : false,
                     enableEndSession,
                     requirePKCE,
                     isPublic,
@@ -117,8 +152,8 @@ export function ClientForm({ client }: { client: OAuthClientRow }) {
                 })
                 toast.success("Client updated")
                 router.refresh()
-            } catch {
-                toast.error("Failed to update client")
+            } catch (err) {
+                toast.error(err instanceof Error ? err.message : "Failed to update client")
             }
         })
     }
@@ -178,6 +213,7 @@ export function ClientForm({ client }: { client: OAuthClientRow }) {
                         ) : (
                             <Badge variant="secondary">Active</Badge>
                         )}
+                        <Badge variant="outline">{TRUST_TIER_LABELS[trustTier]}</Badge>
                     </div>
                 </div>
                 <Button onClick={handleSave} disabled={isPending}>
@@ -270,14 +306,41 @@ export function ClientForm({ client }: { client: OAuthClientRow }) {
                         <CardTitle className="text-base">Behavior</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>Trust tier</Label>
+                            <Select
+                                value={trustTier}
+                                onValueChange={(v) => handleTrustTierChange(v as TrustTier)}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {TRUST_TIERS.map((tier) => (
+                                        <SelectItem key={tier} value={tier}>
+                                            {TRUST_TIER_LABELS[tier]}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground">
+                                Promotion is administrative only. Dynamic registration always starts as unknown.
+                            </p>
+                        </div>
                         <div className="flex items-center justify-between">
                             <div>
                                 <Label>Skip Consent</Label>
                                 <p className="text-xs text-muted-foreground">
-                                    Bypass the user consent screen
+                                    {skipConsentAllowed
+                                        ? "Bypass the user consent screen (first-party only)"
+                                        : "Requires first-party trust tier"}
                                 </p>
                             </div>
-                            <Switch checked={skipConsent} onCheckedChange={setSkipConsent} />
+                            <Switch
+                                checked={skipConsentAllowed && skipConsent}
+                                onCheckedChange={setSkipConsent}
+                                disabled={!skipConsentAllowed}
+                            />
                         </div>
                         <Separator />
                         <div className="flex items-center justify-between">
@@ -336,37 +399,54 @@ export function ClientForm({ client }: { client: OAuthClientRow }) {
                         <div className="space-y-2">
                             <Label>Scopes</Label>
                             <div className="grid grid-cols-2 gap-2">
-                                {AVAILABLE_SCOPES.map((scope) => (
-                                    <label
-                                        key={scope}
-                                        className="flex items-center gap-2 text-sm"
-                                    >
-                                        <Checkbox
-                                            checked={scopes.includes(scope)}
-                                            onCheckedChange={() => toggleScope(scope)}
-                                        />
-                                        {scope}
-                                    </label>
-                                ))}
+                                {PROVIDER_SCOPES.map((scope) => {
+                                    const allowed = allowedScopes.includes(scope)
+                                    return (
+                                        <label
+                                            key={scope}
+                                            className={`flex items-center gap-2 text-sm ${!allowed ? "opacity-50" : ""}`}
+                                        >
+                                            <Checkbox
+                                                checked={scopes.includes(scope)}
+                                                onCheckedChange={() => toggleScope(scope)}
+                                                disabled={!allowed}
+                                            />
+                                            {scope}
+                                        </label>
+                                    )
+                                })}
                             </div>
+                            <p className="text-xs text-muted-foreground">
+                                Scopes are limited by the client trust tier.
+                            </p>
                         </div>
                         <Separator />
                         <div className="space-y-2">
                             <Label>Grant Types</Label>
                             <div className="space-y-2">
-                                {GRANT_TYPES.map((gt) => (
-                                    <label
-                                        key={gt}
-                                        className="flex items-center gap-2 text-sm"
-                                    >
-                                        <Checkbox
-                                            checked={grantTypes.includes(gt)}
-                                            onCheckedChange={() => toggleGrantType(gt)}
-                                        />
-                                        {gt.replace(/_/g, " ")}
-                                    </label>
-                                ))}
+                                {GRANT_TYPES.map((gt) => {
+                                    const blocked =
+                                        gt === "client_credentials" && !m2mAllowed
+                                    return (
+                                        <label
+                                            key={gt}
+                                            className={`flex items-center gap-2 text-sm ${blocked ? "opacity-50" : ""}`}
+                                        >
+                                            <Checkbox
+                                                checked={grantTypes.includes(gt)}
+                                                onCheckedChange={() => toggleGrantType(gt)}
+                                                disabled={blocked}
+                                            />
+                                            {gt.replace(/_/g, " ")}
+                                        </label>
+                                    )
+                                })}
                             </div>
+                            {!m2mAllowed && (
+                                <p className="text-xs text-muted-foreground">
+                                    client_credentials requires partner or first-party trust.
+                                </p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>

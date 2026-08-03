@@ -46,11 +46,12 @@ Also available: **Invites** at `/admin/invites` — see [invitations.md](./invit
 2. Fill in the required fields:
    - **Application Name** -- display name shown on consent screens.
    - **Redirect URIs** -- one per line; at least one is required.
-3. Optionally toggle:
-   - **Skip consent screen** -- bypass user authorization prompt (recommended for first-party apps).
+3. Choose a **trust tier** (defaults to Registered developer). See [client-trust-model.md](./client-trust-model.md).
+4. Optionally toggle:
+   - **Skip consent screen** -- first-party tier only.
    - **Enable end session** -- allow RP-initiated logout.
-4. Click **Create Client**.
-5. Copy the **Client ID** and **Client Secret** immediately. The secret is displayed only once and cannot be retrieved later.
+5. Click **Create Client**.
+6. Copy the **Client ID** and **Client Secret** immediately. The secret is displayed only once and cannot be retrieved later.
 
 ### Viewing and editing a client
 
@@ -59,11 +60,11 @@ Click a client name in the table to open its detail page. Fields are grouped int
 | Section | Fields |
 |---------|--------|
 | **Basic Information** | Name, Application URL, Icon URL |
-| **Behavior** | Skip Consent, Enable End Session, Require PKCE, Public Client, Disabled |
-| **OAuth Configuration** | Redirect URIs, Scopes (`openid`, `profile`, `email`, `offline_access`), Grant Types (`authorization_code`, `refresh_token`, `client_credentials`) |
+| **Behavior** | Trust tier, Skip Consent (first-party only), Enable End Session, Require PKCE, Public Client, Disabled |
+| **OAuth Configuration** | Redirect URIs, Scopes (gated by trust tier), Grant Types (`client_credentials` requires partner+) |
 | **Legal & Contact** | Contact Emails, Terms of Service URL, Privacy Policy URL |
 
-Click **Save Changes** to persist edits.
+Click **Save Changes** to persist edits. Promoting or demoting trust tier is an administrative operation — clients cannot raise their own tier via dynamic registration.
 
 ### Enabling / disabling a client
 

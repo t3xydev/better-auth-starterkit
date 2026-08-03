@@ -32,6 +32,8 @@ This app can act as an **authorization server** for your other apps.
 
 Dynamic client registration is off by default. Set `ALLOW_DYNAMIC_CLIENT_REGISTRATION=true` to enable it for authenticated users. Public unauthenticated registration stays off unless `ALLOW_UNAUTHENTICATED_CLIENT_REGISTRATION=true`.
 
+Dynamically registered clients start as **Tier 0 (unknown)**: public scopes only, mandatory consent, PKCE, no machine grants, and an “unverified” warning on the consent screen. See [client-trust-model.md](./client-trust-model.md).
+
 ### Common endpoints
 
 Replace `{BASE}` with `BETTER_AUTH_URL`:

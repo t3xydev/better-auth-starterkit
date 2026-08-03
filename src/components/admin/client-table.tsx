@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { deleteClient, toggleClient } from "@/lib/actions/admin-clients"
 import type { OAuthClientRow } from "@/lib/actions/admin-clients"
+import { TRUST_TIER_LABELS, getTrustTier } from "@/lib/client-trust"
 
 export function ClientTable({ clients }: { clients: OAuthClientRow[] }) {
     const router = useRouter()
@@ -102,6 +103,7 @@ export function ClientTable({ clients }: { clients: OAuthClientRow[] }) {
                             <TableHead>Name</TableHead>
                             <TableHead>Client ID</TableHead>
                             <TableHead>Type</TableHead>
+                            <TableHead>Trust</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Created</TableHead>
                             <TableHead className="w-12" />
@@ -139,6 +141,11 @@ export function ClientTable({ clients }: { clients: OAuthClientRow[] }) {
                                 <TableCell>
                                     <Badge variant="outline">
                                         {client.public ? "Public" : "Confidential"}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant="outline">
+                                        {TRUST_TIER_LABELS[getTrustTier(client.metadata)]}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>

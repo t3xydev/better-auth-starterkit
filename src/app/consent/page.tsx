@@ -4,15 +4,23 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useState, Suspense } from "react"
 import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
-import { Shield, Globe, User, Mail, RefreshCw } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Shield, Globe, User, Mail, RefreshCw, AlertTriangle, BadgeCheck } from "lucide-react"
+import { getPublicClientTrust } from "@/lib/actions/client-trust-public"
+import type { PublicClientTrust } from "@/lib/actions/client-trust-public"
+import { PUBLIC_SCOPES } from "@/lib/client-trust"
 
-const ALLOWED_SCOPES = new Set(["openid", "profile", "email", "offline_access"])
+const ALLOWED_SCOPES = new Set<string>([...PUBLIC_SCOPES, "offline_access"])
 
 const scopeDetails: Record<string, { label: string; description: string; icon: typeof Shield }> = {
     openid: { label: "OpenID", description: "Verify your identity", icon: Shield },
     profile: { label: "Profile", description: "Access your name and profile picture", icon: User },
     email: { label: "Email", description: "Access your email address", icon: Mail },
-    offline_access: { label: "Offline Access", description: "Stay connected when you're not using the app", icon: RefreshCw },
+    offline_access: {
+        label: "Offline Access",
+        description: "Stay connected when you're not using the app",
+        icon: RefreshCw,
+    },
 }
 
 function ConsentForm() {
@@ -23,11 +31,7 @@ function ConsentForm() {
     const scopes = rawScope.split(" ").filter((s) => ALLOWED_SCOPES.has(s))
     const scope = scopes.join(" ")
 
-    const [clientInfo, setClientInfo] = useState<{
-        name?: string
-        icon?: string
-        uri?: string
-    } | null>(null)
+    const [clientInfo, setClientInfo] = useState<PublicClientTrust | null>(null)
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -38,15 +42,30 @@ function ConsentForm() {
             setLoading(false)
             return
         }
-        authClient.oauth2
-            .publicClient({ query: { client_id: clientId } })
-            .then(({ data, error: err }) => {
+
+        Promise.all([
+            getPublicClientTrust(clientId),
+            authClient.oauth2.publicClient({ query: { client_id: clientId } }),
+        ])
+            .then(([trust, { data, error: err }]) => {
+                if (trust) {
+                    setClientInfo(trust)
+                    return
+                }
                 if (err || !data) {
                     setError("Could not load application details")
-                } else {
-                    const d = data as { name?: string; icon?: string; uri?: string }
-                    setClientInfo({ name: d.name, icon: d.icon, uri: d.uri })
+                    return
                 }
+                const d = data as { name?: string; icon?: string; uri?: string }
+                setClientInfo({
+                    clientId,
+                    name: d.name ?? null,
+                    icon: d.icon ?? null,
+                    uri: d.uri ?? null,
+                    trustTier: "unknown",
+                    trustLabel: "Unverified application",
+                    unverified: true,
+                })
             })
             .catch(() => setError("Could not load application details"))
             .finally(() => setLoading(false))
@@ -100,9 +119,14 @@ function ConsentForm() {
                             </div>
                         )}
                         <div>
-                            <h1 className="text-lg font-semibold">
-                                {clientInfo?.name ?? "An application"}
-                            </h1>
+                            <div className="flex items-center justify-center gap-2">
+                                <h1 className="text-lg font-semibold">
+                                    {clientInfo?.name ?? "An application"}
+                                </h1>
+                                {clientInfo && !clientInfo.unverified && (
+                                    <BadgeCheck className="size-4 text-primary" aria-label="Verified" />
+                                )}
+                            </div>
                             <p className="mt-1 text-sm text-muted-foreground">
                                 wants access to your account
                             </p>
@@ -111,8 +135,25 @@ function ConsentForm() {
                                     {clientInfo.uri}
                                 </p>
                             )}
+                            {clientInfo && (
+                                <div className="mt-2 flex justify-center">
+                                    <Badge variant={clientInfo.unverified ? "destructive" : "secondary"}>
+                                        {clientInfo.trustLabel}
+                                    </Badge>
+                                </div>
+                            )}
                         </div>
                     </div>
+
+                    {clientInfo?.unverified && (
+                        <div className="mt-4 flex gap-2 rounded-md border border-amber-500/40 bg-amber-50/80 p-3 text-left text-xs text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">
+                            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                            <p>
+                                This application is not verified. Only continue if you trust the
+                                developer. You can revoke access later from account settings.
+                            </p>
+                        </div>
+                    )}
 
                     {scopes.length > 0 && (
                         <div className="mt-5 space-y-2">
