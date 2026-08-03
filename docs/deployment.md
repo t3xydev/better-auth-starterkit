@@ -62,6 +62,33 @@ The Worker at `deploy/cloudflare/container-worker.ts` proxies all traffic to the
 
 Switch back with `cloudflare.runtime: "containers"` and `pnpm deploy:sync`.
 
+#### Cloudflare cost estimate
+
+Rough guide for this kit’s default **Containers** path. Confirm current rates in [Containers pricing](https://developers.cloudflare.com/containers/pricing/) and [Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/).
+
+Containers require the **Workers Paid** plan (**$5/mo** base). The Worker at `deploy/cloudflare/container-worker.ts` proxies to a Next.js container (`sleepAfter: "10m"`, `max_instances: 3`). You are billed for container memory/CPU/disk while the instance is awake, plus Worker and Durable Object usage (usually inside the Paid allotment at auth scale).
+
+| Billable piece | Role | Notes |
+|----------------|------|--------|
+| Workers Paid | Required for Containers | **$5/mo** base; includes Workers, DO, and container allotments |
+| Containers | Runs Next.js | Memory/CPU/disk while awake; scale-to-zero after idle |
+| Worker + Durable Object | Proxies traffic | Rarely exceeds included quotas for auth traffic |
+| Hyperdrive | Workers/OpenNext only | **$0** on Paid (unlimited queries) |
+| PostgreSQL | Via `DATABASE_URL` | **Not on Cloudflare** — use Neon, Supabase, etc. |
+
+The Dockerfile ships a full Next.js + `node_modules` image, so **`lite` (256 MiB) is unrealistic**. Plan on **`basic` (1 GiB)** minimum, or **`standard-1` (4 GiB)** if memory is tight.
+
+| Scenario | Assumptions | Cloudflare ≈ |
+|----------|-------------|--------------|
+| Hobby / low traffic | `basic`, awake ~2 h/day | **~$5–7** |
+| Small production auth | `basic`, awake ~8 h/day | **~$7–10** |
+| Always-on, small | `basic`, 24/7 | **~$13–15** |
+| Always-on, safer RAM | `standard-1`, 24/7 | **~$35–40** |
+
+Add Postgres separately (e.g. Neon/Supabase free tiers, or ~$19–25/mo paid). Example all-in: small prod Containers + managed Postgres → **~$7–30/mo**.
+
+**Workers / OpenNext** often stays near the **$5** Paid floor for millions of requests, but this kit’s `pg` + Drizzle path is not Hyperdrive-wired yet. Biggest cost swings on Containers: how long the instance stays awake and which instance type you pick.
+
 ---
 
 ## Classic build command (Render, Fly, etc.)
