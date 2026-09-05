@@ -85,6 +85,13 @@
       "when": 1785262609733,
       "tag": "0011_stormy_frog_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1788602136018,
+      "tag": "0012_grapeos_logout_redirects",
+      "breakpoints": true
     }
   ]
 }
