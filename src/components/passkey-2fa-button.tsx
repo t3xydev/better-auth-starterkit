@@ -16,10 +16,19 @@ export function Passkey2faButton() {
         setIsPending(true)
 
         try {
-            await authClient.signIn.passkey({ fetchOptions: { throw: true } })
+            const response = await authClient.signIn.passkey()
+
+            if (response.error) {
+                toast.error(
+                    response.error.message || "Passkey verification failed"
+                )
+                return
+            }
+
             navigate(redirectTo)
         } catch {
             toast.error("Passkey verification failed")
+        } finally {
             setIsPending(false)
         }
     }

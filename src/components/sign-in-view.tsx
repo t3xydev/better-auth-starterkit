@@ -12,7 +12,7 @@ import {
     CardDescription,
     CardFooter,
     CardHeader,
-    CardTitle,
+    CardTitle
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { inviteOnly } from "@/lib/invite-only"
@@ -27,21 +27,16 @@ export function SignInView({ appName }: { appName?: string }) {
         if (typeof window === "undefined") return
         if (window.nostr) setHasNostr(true)
 
-        if (!window.PublicKeyCredential) return
-        const check = PublicKeyCredential
-            .isUserVerifyingPlatformAuthenticatorAvailable?.()
-        if (check) {
-            check.then(setPasskeyAvailable).catch(() => setPasskeyAvailable(false))
-        } else {
-            setPasskeyAvailable(true)
-        }
+        // WebAuthn may still use a roaming security key or another device when
+        // no platform authenticator is available.
+        setPasskeyAvailable(Boolean(window.PublicKeyCredential))
     }, [])
 
     if (inviteOnly) {
         return (
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <p className="text-sm font-medium text-muted-foreground">
+                    <p className="font-medium text-muted-foreground text-sm">
                         {brand}
                     </p>
                     <CardTitle>Sign in</CardTitle>
@@ -70,7 +65,7 @@ export function SignInView({ appName }: { appName?: string }) {
                     ) : null}
                 </CardContent>
                 <CardFooter className="justify-center">
-                    <p className="text-center text-sm text-muted-foreground">
+                    <p className="text-center text-muted-foreground text-sm">
                         Have an invite? Use the link or code to sign up.
                     </p>
                 </CardFooter>
