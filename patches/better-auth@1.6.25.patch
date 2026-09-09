@@ -1,0 +1,16 @@
+diff --git a/dist/plugins/two-factor/totp/index.mjs b/dist/plugins/two-factor/totp/index.mjs
+index eb63801edf110395c595650e1ac2bea834415324..b35baf0d4f3709871c5e9c150fe0e4af0d3aeb50 100644
+--- a/dist/plugins/two-factor/totp/index.mjs
++++ b/dist/plugins/two-factor/totp/index.mjs
+@@ -180,7 +180,10 @@ const totp2fa = (options) => {
+ 					}]
+ 				});
+ 				if (!twoFactor) throw APIError.from("BAD_REQUEST", TWO_FACTOR_ERROR_CODES.TOTP_NOT_ENABLED);
+-				if (isSignIn && twoFactor.verified === false) throw APIError.from("BAD_REQUEST", TWO_FACTOR_ERROR_CODES.TOTP_NOT_ENABLED);
++				// A valid TOTP code is sufficient to repair legacy accounts whose
++				// user flag is enabled while the separate TOTP row is unverified.
++				// The normal verification path below marks the row verified only
++				// after the submitted code matches the encrypted secret.
+ 				if (isSignIn) await assertTwoFactorNotLocked(ctx, twoFactorTable, twoFactor);
+ 				const attempt = isSignIn ? await beginAttempt(5) : null;
+ 				let status;

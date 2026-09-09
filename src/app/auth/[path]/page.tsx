@@ -13,15 +13,19 @@ import { users } from "@/database/schema"
 import { inviteOnly } from "@/lib/invite-only"
 import {
     getInviteTokenFromCookies,
-    isUsableInviteToken,
+    isUsableInviteToken
 } from "@/lib/invite-only-server"
+import { preferredAuthViewPaths } from "@/modules/email-code-login"
 
 export const dynamicParams = false
 
 const appName = process.env.APPLICATION_NAME || "Better Auth StarterKit"
 
 export function generateStaticParams() {
-    return Object.values(authViewPaths).map((path) => ({ path }))
+    return Object.values({
+        ...authViewPaths,
+        ...preferredAuthViewPaths
+    }).map((path) => ({ path }))
 }
 
 export default async function AuthPage({
@@ -79,17 +83,11 @@ export default async function AuthPage({
             {!["callback", "sign-out"].includes(path) && (
                 <p className="w-full max-w-sm text-center text-muted-foreground text-xs">
                     By continuing, you agree to our{" "}
-                    <Link
-                        className="text-primary"
-                        href="/terms"
-                    >
+                    <Link className="text-primary" href="/terms">
                         Terms of Service
                     </Link>{" "}
                     and{" "}
-                    <Link
-                        className="text-primary"
-                        href="/privacy"
-                    >
+                    <Link className="text-primary" href="/privacy">
                         Privacy Policy
                     </Link>
                     .

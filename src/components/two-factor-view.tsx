@@ -2,11 +2,29 @@
 
 import { AuthView } from "@daveyplate/better-auth-ui"
 import Link from "next/link"
-import { Suspense } from "react"
+import { Suspense, useEffect, useState } from "react"
 
+import { Passkey2faButton } from "@/components/passkey-2fa-button"
 import { TotpSetupKey } from "@/components/totp-setup-key"
 
 export function TwoFactorView() {
+    const [passkeyAvailable, setPasskeyAvailable] = useState(false)
+
+    useEffect(() => {
+        if (!window.PublicKeyCredential) return
+
+        void fetch("/api/auth/passkey/two-factor-available", {
+            credentials: "include"
+        })
+            .then(async (response) => {
+                if (!response.ok) return false
+                const data = (await response.json()) as { available?: boolean }
+                return data.available === true
+            })
+            .then(setPasskeyAvailable)
+            .catch(() => setPasskeyAvailable(false))
+    }, [])
+
     return (
         <AuthView
             path="two-factor"
@@ -14,6 +32,7 @@ export function TwoFactorView() {
                 form: {
                     base: "justify-items-center [&>.flex]:justify-center",
                     forgotPasswordLink: "hidden",
+                    secondaryButton: "hidden",
                     qrCode: "mx-auto",
                     otpInput: "h-12 w-12 text-lg",
                     otpInputContainer: "justify-center"
@@ -22,6 +41,7 @@ export function TwoFactorView() {
             }}
             cardFooter={
                 <div className="flex w-full flex-col items-center gap-2">
+                    {passkeyAvailable ? <Passkey2faButton /> : null}
                     <Suspense>
                         <TotpSetupKey />
                     </Suspense>

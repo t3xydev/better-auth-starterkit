@@ -1,0 +1,28 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "xyz.grape.ai",
+      "sha256_cert_fingerprints": [
+        "15:B9:AD:7D:D3:2C:83:17:CD:88:EC:48:B5:33:EA:E7:EF:24:DF:A1:4C:02:E9:11:68:4A:C1:2A:D8:51:57:64"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "xyz.grape.ai.debug",
+      "sha256_cert_fingerprints": [
+        "B6:B0:3F:70:BB:D1:DD:11:6F:54:A4:85:50:19:BD:FC:39:98:9F:58:AE:B3:EB:A8:A4:59:D4:31:91:CC:D5:DD"
+      ]
+    }
+  }
+]

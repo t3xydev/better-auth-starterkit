@@ -5,12 +5,19 @@ import { dash, sentinel } from "@better-auth/infra"
 import { passkey, getAuthenticatorName } from "@better-auth/passkey"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { nextCookies } from "better-auth/next-js"
-import { admin, jwt, openAPI, organization, twoFactor } from "better-auth/plugins"
-import { oauthProvider } from "@better-auth/oauth-provider"; 
+import {
+    admin,
+    jwt,
+    openAPI,
+    organization,
+    twoFactor
+} from "better-auth/plugins"
+import { oauthProvider } from "@better-auth/oauth-provider"
 import { invite } from "better-invite"
 import { nostr } from "better-auth-nostr"
 import { dbsc } from "@dbsc-toolkit/better-auth"
 import { devtools } from "better-auth-devtools"
+import { emailCodeLogin } from "@/lib/plugins/email-code-login"
 import { nostrLink } from "@/lib/plugins/nostr-link"
 
 import { db } from "@/database/db"
@@ -18,19 +25,24 @@ import * as schema from "@/database/schema"
 import { sendEmail } from "./email"
 import {
     allowDynamicClientRegistration,
-    allowUnauthenticatedClientRegistration,
+    allowUnauthenticatedClientRegistration
 } from "./dynamic-client-registration"
 import {
     DCR_DEFAULT_SCOPES,
     PROVIDER_SCOPES,
-    PUBLIC_SCOPES,
+    PUBLIC_SCOPES
 } from "./client-trust"
 import { INVITE_TOKEN_COOKIE, inviteOnly } from "./invite-only"
 import { isUsableInviteToken } from "./invite-only-server"
 import { organizationsEnabled } from "./organizations"
+import {
+    passkeyTwoFactorAvailability,
+    verifyPendingTwoFactorPasskey
+} from "./passkey-two-factor"
 
 /** Bridges better-invite `$ERROR_CODES` to Better Auth’s `RawError` shape. See `docs/framework/typescript-better-invite.mdx`. */
-type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> & Pick<BetterAuthPlugin, "$ERROR_CODES">
+type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> &
+    Pick<BetterAuthPlugin, "$ERROR_CODES">
 
 const ALLOWED_SCOPES = PROVIDER_SCOPES
 
@@ -43,34 +55,22 @@ const trustedOrigins = [
     ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS ?? "")
         .split(",")
         .map((origin) => origin.trim().replace(/\/$/, ""))
-        .filter(Boolean),
+        .filter(Boolean)
 ]
 
 export const auth = betterAuth({
     // baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
     appName: process.env.APPLICATION_NAME || "Better Auth StarterKit",
     trustedOrigins,
-    experimental: {
-        joins: true,
-    },
+    experimental: { joins: true },
     advanced: {
-        ipAddress: {
-            ipAddressHeaders: ["x-forwarded-for", "x-real-ip"],
-        },
+        ipAddress: { ipAddressHeaders: ["x-forwarded-for", "x-real-ip"] }
     },
     session: {
         storeSessionInDatabase: true,
-        cookieCache: {
-            enabled: true,
-            maxAge: 5 * 60,
-            strategy: "jwe",
-        },
+        cookieCache: { enabled: true, maxAge: 5 * 60, strategy: "jwe" }
     },
-    database: drizzleAdapter(db, {
-        provider: "pg",
-        usePlural: true,
-        schema
-    }),
+    database: drizzleAdapter(db, { provider: "pg", usePlural: true, schema }),
     emailVerification: {
         sendVerificationEmail: async ({ user, url }) => {
             void sendEmail({
@@ -81,12 +81,12 @@ export const auth = betterAuth({
                 variables: {
                     verificationUrl: url,
                     userEmail: user.email,
-                    userName: user.name,
-                },
+                    userName: user.name
+                }
             })
         },
         sendOnSignUp: true,
-        autoSignInAfterVerification: true,
+        autoSignInAfterVerification: true
     },
     emailAndPassword: {
         enabled: true,
@@ -99,52 +99,55 @@ export const auth = betterAuth({
                 variables: {
                     resetLink: url,
                     userEmail: user.email,
-                    userName: user.name,
-                },
+                    userName: user.name
+                }
             })
-        },
+        }
     },
     hooks: {
         before: createAuthMiddleware(async (ctx) => {
             if (!inviteOnly || ctx.path !== "/sign-up/email") return
-
-            const inviteCookie = ctx.context.createAuthCookie(INVITE_TOKEN_COOKIE)
+            const inviteCookie =
+                ctx.context.createAuthCookie(INVITE_TOKEN_COOKIE)
             const token = await ctx.getSignedCookie(
                 inviteCookie.name,
-                ctx.context.secret,
+                ctx.context.secret
             )
-
             if (token) {
                 if (await isUsableInviteToken(token)) return
                 // Invite was canceled/deleted/expired — drop the stale cookie
                 expireCookie(ctx, inviteCookie)
             }
-
             // Allow the very first account so an admin can bootstrap invites
-            const existingUsers = await ctx.context.internalAdapter.countTotalUsers()
+            const existingUsers =
+                await ctx.context.internalAdapter.countTotalUsers()
             if (existingUsers === 0) return
-
             throw new APIError("FORBIDDEN", {
-                message: "An invitation is required to create an account.",
+                message: "An invitation is required to create an account."
             })
-        }),
+        })
     },
     disabledPaths: ["/token"],
     plugins: [
+        emailCodeLogin(),
         admin(),
         twoFactor(),
         passkey({
             rpName: process.env.APPLICATION_NAME || "Better Auth StarterKit",
             origin: authOrigin,
             rpID: new URL(authOrigin).hostname,
+            authentication: {
+                afterVerification: verifyPendingTwoFactorPasskey
+            },
             registration: {
                 afterVerification: async ({ verification }) => ({
                     name: getAuthenticatorName(
-                        verification.registrationInfo?.aaguid,
-                    ),
-                }),
-            },
+                        verification.registrationInfo?.aaguid
+                    )
+                })
+            }
         }),
+        passkeyTwoFactorAvailability(),
         ...(organizationsEnabled
             ? [
                   organization({
@@ -160,11 +163,11 @@ export const auth = betterAuth({
                                   inviterName: data.inviter.user.name,
                                   inviterEmail: data.inviter.user.email,
                                   organizationName: data.organization.name,
-                                  role: data.role,
-                              },
+                                  role: data.role
+                              }
                           })
-                      },
-                  }),
+                      }
+                  })
               ]
             : []),
         invite({
@@ -183,10 +186,13 @@ export const auth = betterAuth({
             canCreateInvite: async ({ inviterUser, invitedUser }) => {
                 if (inviterUser.role !== "admin") return false
                 // Admins may invite as user or admin only
-                return invitedUser.role === "user" || invitedUser.role === "admin"
+                return (
+                    invitedUser.role === "user" || invitedUser.role === "admin"
+                )
             },
             async sendUserInvitation({ email, role, url, newAccount }) {
-                const appName = process.env.APPLICATION_NAME || "Better Auth StarterKit"
+                const appName =
+                    process.env.APPLICATION_NAME || "Better Auth StarterKit"
                 void sendEmail({
                     template: "application-invite",
                     to: email,
@@ -200,29 +206,32 @@ export const auth = betterAuth({
                         inviteLink: url,
                         inviterName: appName,
                         inviterEmail: email,
-                        inviteeEmail: email,
-                    },
+                        inviteeEmail: email
+                    }
                 })
-            },
+            }
         }) as unknown as FixErrorCodes<ReturnType<typeof invite>>,
-        nostr({
-            disableImplicitSignUp: true,
-        }),
+        nostr({ disableImplicitSignUp: true }),
         nostrLink(),
-        dash(), 
+        dash(),
         sentinel(),
         openAPI(),
         jwt({
             jwt: {
-                issuer: process.env.BETTER_AUTH_URL || process.env.OAUTH_ISSUER || "http://localhost:3000",
-            },
+                issuer:
+                    process.env.BETTER_AUTH_URL ||
+                    process.env.OAUTH_ISSUER ||
+                    "http://localhost:3000"
+            }
         }),
         oauthProvider({
             loginPage: "/auth/sign-in",
             consentPage: "/consent",
             scopes: [...ALLOWED_SCOPES],
             validAudiences: [
-                process.env.BETTER_AUTH_URL || process.env.OAUTH_AUDIENCE || "http://localhost:3000",
+                process.env.BETTER_AUTH_URL ||
+                    process.env.OAUTH_AUDIENCE ||
+                    "http://localhost:3000"
             ],
             allowDynamicClientRegistration,
             allowUnauthenticatedClientRegistration,
@@ -236,47 +245,55 @@ export const auth = betterAuth({
                 token: { window: 60, max: 15 },
                 revoke: { window: 60, max: 10 },
                 introspect: { window: 60, max: 20 },
-                userinfo: { window: 60, max: 30 },
+                userinfo: { window: 60, max: 30 }
             },
-            customAccessTokenClaims: async ({ user }) => (
-                user?.role ? { roles: [user.role] } : {}
-            ),
-            customIdTokenClaims: async ({ user }) => (
-                user.role ? { roles: [user.role] } : {}
-            ),
-            customUserInfoClaims: async ({ user }) => (
-                user.role ? { roles: [user.role] } : {}
-            ),
+            customAccessTokenClaims: async ({ user }) =>
+                user?.role ? { roles: [user.role] } : {},
+            customIdTokenClaims: async ({ user }) =>
+                user.role ? { roles: [user.role] } : {},
+            customUserInfoClaims: async ({ user }) =>
+                user.role ? { roles: [user.role] } : {},
             advertisedMetadata: {
                 claims_supported: [
-                    "sub", "iss", "aud", "exp", "iat", "sid", "scope", "azp",
-                    "email", "email_verified",
-                    "name", "picture", "given_name", "family_name",
-                    "roles",
-                ],
+                    "sub",
+                    "iss",
+                    "aud",
+                    "exp",
+                    "iat",
+                    "sid",
+                    "scope",
+                    "azp",
+                    "email",
+                    "email_verified",
+                    "name",
+                    "picture",
+                    "given_name",
+                    "family_name",
+                    "roles"
+                ]
             },
             silenceWarnings: {
                 openidConfig: true,
                 oauthConfig: true,
-                oauthAuthServerConfig: true,
-            },
+                oauthAuthServerConfig: true
+            }
         }),
         dbsc() as BetterAuthPlugin,
         devtools({
             enabled: true,
             templates: {
                 admin: { label: "Admin", user: { role: "admin" } },
-                user: { label: "User", user: { role: "user" } },
+                user: { label: "User", user: { role: "user" } }
             },
             editableFields: [
                 {
                     key: "role",
                     label: "Role",
                     type: "select",
-                    options: ["admin", "user"],
-                },
-            ],
+                    options: ["admin", "user"]
+                }
+            ]
         }),
-        nextCookies(),
+        nextCookies()
     ]
 })

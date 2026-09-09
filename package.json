@@ -79,7 +79,8 @@
     "pnpm": {
         "overrides": {},
         "patchedDependencies": {
-            "better-invite@0.5.0": "patches/better-invite@0.5.0.patch"
+            "better-invite@0.5.0": "patches/better-invite@0.5.0.patch",
+            "better-auth@1.6.25": "patches/better-auth@1.6.25.patch"
         }
     },
     "packageManager": "pnpm@10.12.1"
