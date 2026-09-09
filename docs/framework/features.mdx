@@ -11,9 +11,10 @@ Configuration lives primarily in [`src/lib/auth.ts`](https://github.com/t3xydev/
 
 | Method | Plugin / config | Notes |
 |---|---|---|
+| Email code | `emailOTP` | Preferred passwordless sign-in at `/auth/sign-in`; password remains available at `/auth/password`. Codes expire after five minutes, are stored hashed, and cannot create unknown accounts |
 | Email & password | `emailAndPassword` | Sign-up verification + password reset via [email](https://github.com/t3xydev/better-auth-starterkit/blob/main/src/lib/email.ts) |
-| Passkeys | `@better-auth/passkey` | WebAuthn; RP ID derived from `BETTER_AUTH_URL` |
-| Two-factor (TOTP) | `twoFactor` | Challenge UI at `/auth/two-factor` |
+| Passkeys | `@better-auth/passkey` | WebAuthn; RP ID derived from `BETTER_AUTH_URL`; an enrolled passkey can complete a pending 2FA challenge for the same account |
+| Two-factor (TOTP) | `twoFactor` | Challenge UI at `/auth/two-factor`; a valid code repairs legacy enabled accounts with an unverified TOTP record |
 | Nostr | `better-auth-nostr` + custom link plugin | Sign-in and account key linking (`/account/nostr`) |
 | Invitations | `better-invite` | Admin create/list UI, email + public invites, `/invite/activate/[token]` welcome + accept flow — [guide](/docs/framework/invitations). Opt-in invite-only registration via `NEXT_PUBLIC_INVITE_ONLY=true` |
 | Organizations | `organization` | Opt-in via `NEXT_PUBLIC_ORGANIZATIONS_ENABLED=true`. Members, roles, email invites; UI at `/organization/*` and `/account/organizations` |
@@ -88,6 +89,7 @@ Delivery order: Resend HTTPS API (when `SMTP_HOST` is Resend / `SMTP_PASS` start
 Used for:
 
 - Email verification  
+- Email sign-in codes
 - Password reset  
 - User invitations (`better-invite`)  
 - Organization member invitations 

@@ -1,11 +1,12 @@
 "use client"
 
-import { AuthUIContext, AuthView, SignInForm } from "@daveyplate/better-auth-ui"
+import { AuthForm, AuthUIContext, AuthView } from "@daveyplate/better-auth-ui"
 import { useContext, useEffect, useState } from "react"
 
 import { AuthFormValidationToast } from "@/components/auth-form-validation-toast"
 import { NostrSignInButton } from "@/components/nostr-sign-in-button"
 import { Passkey2faButton } from "@/components/passkey-2fa-button"
+import { Button } from "@/components/ui/button"
 import {
     Card,
     CardContent,
@@ -18,7 +19,7 @@ import { Separator } from "@/components/ui/separator"
 import { inviteOnly } from "@/lib/invite-only"
 
 export function SignInView({ appName }: { appName?: string }) {
-    const { localization } = useContext(AuthUIContext)
+    const { localization, navigate } = useContext(AuthUIContext)
     const [hasNostr, setHasNostr] = useState(false)
     const [passkeyAvailable, setPasskeyAvailable] = useState(false)
     const brand = appName || "Better Auth StarterKit"
@@ -39,17 +40,25 @@ export function SignInView({ appName }: { appName?: string }) {
                     <p className="font-medium text-muted-foreground text-sm">
                         {brand}
                     </p>
-                    <CardTitle>Sign in</CardTitle>
+                    <CardTitle>{localization.SIGN_IN}</CardTitle>
                     <CardDescription>
-                        Registration is invite-only.
-                        <br />
-                        You&apos;ll need an invite link to create an account.
+                        {localization.SIGN_IN_DESCRIPTION}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <AuthFormValidationToast>
-                        <SignInForm localization={{}} />
+                        <AuthForm localization={{}} view="EMAIL_OTP" />
                     </AuthFormValidationToast>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        className="w-full"
+                        onClick={() =>
+                            navigate(`/auth/password${window.location.search}`)
+                        }
+                    >
+                        Sign in with Password
+                    </Button>
                     {passkeyAvailable || hasNostr ? (
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-2">
@@ -73,15 +82,34 @@ export function SignInView({ appName }: { appName?: string }) {
         )
     }
 
-    const footer = hasNostr ? (
-        <div className="flex w-full flex-col gap-2">
-            <NostrSignInButton />
-        </div>
-    ) : undefined
+    const footer =
+        passkeyAvailable || hasNostr ? (
+            <div className="flex w-full flex-col gap-4">
+                <div className="flex items-center gap-2">
+                    <Separator className="!w-auto grow" />
+                    <span className="shrink-0 text-muted-foreground text-sm">
+                        {localization.OR_CONTINUE_WITH}
+                    </span>
+                    <Separator className="!w-auto grow" />
+                </div>
+                {passkeyAvailable ? <Passkey2faButton /> : null}
+                {hasNostr ? <NostrSignInButton /> : null}
+            </div>
+        ) : undefined
+    const header = (
+        <>
+            <CardTitle className="text-lg md:text-xl">
+                {localization.SIGN_IN}
+            </CardTitle>
+            <CardDescription className="text-xs md:text-sm">
+                {localization.SIGN_IN_DESCRIPTION}
+            </CardDescription>
+        </>
+    )
 
     return (
         <AuthFormValidationToast>
-            <AuthView path="sign-in" cardFooter={footer} />
+            <AuthView path="sign-in" cardHeader={header} cardFooter={footer} />
         </AuthFormValidationToast>
     )
 }

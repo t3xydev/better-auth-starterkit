@@ -7,14 +7,15 @@ import { useRouter } from "next/navigation"
 import { ThemeProvider } from "next-themes"
 import type { ReactNode } from "react"
 import { Suspense } from "react"
-import { authClient } from "@/lib/auth-client"
-import { organizationsEnabled } from "@/lib/organizations"
 import { AuthDevtools } from "@/components/better-auth-devtools"
 import { DbscInit } from "@/components/dbsc-init"
-import { PHProvider } from "@/components/posthog-provider"
 import { PostHogIdentify } from "@/components/posthog-identify"
 import { PostHogPageView } from "@/components/posthog-page-view"
+import { PHProvider } from "@/components/posthog-provider"
 import { Toaster } from "@/components/ui/sonner"
+import { authClient } from "@/lib/auth-client"
+import { organizationsEnabled } from "@/lib/organizations"
+import { preferredAuthViewPaths } from "@/modules/email-code-login"
 
 export function Providers({ children }: { children: ReactNode }) {
     const router = useRouter()
@@ -44,20 +45,22 @@ export function Providers({ children }: { children: ReactNode }) {
                         }}
                         Link={Link}
                         redirectTo="/account/settings"
+                        emailOTP
+                        viewPaths={preferredAuthViewPaths}
                         twoFactor={["totp"]}
                         passkey
                         organization={organizationsEnabled || undefined}
                         credentials={{
                             passwordValidation: {
-                                minLength: 8,
-                            },
+                                minLength: 8
+                            }
                         }}
                         localization={{
                             EMAIL_PLACEHOLDER: "",
                             PASSWORD_PLACEHOLDER: "",
                             CONFIRM_PASSWORD_PLACEHOLDER: "",
                             CURRENT_PASSWORD_PLACEHOLDER: "",
-                            NEW_PASSWORD_PLACEHOLDER: "",
+                            NEW_PASSWORD_PLACEHOLDER: ""
                         }}
                     >
                         <DbscInit />

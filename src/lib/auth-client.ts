@@ -1,7 +1,12 @@
 import { createAuthClient } from "better-auth/react"
 import { type BetterAuthPlugin } from "better-auth"
 import { passkeyClient } from "@better-auth/passkey/client"
-import { adminClient, organizationClient, twoFactorClient } from "better-auth/client/plugins"
+import {
+  adminClient,
+  emailOTPClient,
+  organizationClient,
+  twoFactorClient,
+} from "better-auth/client/plugins"
 import { dashClient, sentinelClient } from "@better-auth/infra/client"
 import { oauthProviderClient } from "@better-auth/oauth-provider/client"
 import { inviteClient, type invite } from "better-invite"
@@ -16,6 +21,7 @@ type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> & Pick<BetterAuthPlugin, "$ERROR
 const authEventsByPath: Record<string, string> = {
   "/change-email": "email_changed",
   "/change-password": "password_changed",
+  "/sign-in/email-otp": "email_code_sign_in",
   "/update-user": "profile_updated",
   "/passkey/verify-authentication": "passkey_sign_in",
   "/passkey/verify-registration": "passkey_added",
@@ -29,6 +35,7 @@ const authEventsByPath: Record<string, string> = {
 
 export const authClient = createAuthClient({
   plugins: [
+    emailOTPClient(),
     passkeyClient(),
     adminClient(),
     ...(organizationsEnabled ? [organizationClient()] : []),
