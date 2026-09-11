@@ -5,6 +5,15 @@
 
 export type CloudflareRuntime = "containers" | "workers"
 
+/** Cloudflare Containers instance size. Default omitted by Wrangler is `lite` (256 MiB). */
+export type CloudflareInstanceType =
+    | "lite"
+    | "basic"
+    | "standard-1"
+    | "standard-2"
+    | "standard-3"
+    | "standard-4"
+
 export const deployConfig = {
     /** Service / image name used across platforms */
     name: "better-auth-starterkit",
@@ -50,7 +59,13 @@ export const deployConfig = {
         containerWorker: "deploy/cloudflare/container-worker.ts",
 
         /** Durable Object / Container class name */
-        containerClassName: "AuthServerContainer"
+        containerClassName: "AuthServerContainer",
+
+        /**
+         * Container memory/CPU/disk. Wrangler defaults to `lite` (256 MiB),
+         * which is too small for this Next.js image.
+         */
+        instanceType: "basic" as CloudflareInstanceType
     },
 
     dokploy: {

@@ -44,22 +44,29 @@ You can also deploy as a single **Dockerfile** app (path `./Dockerfile`) without
 
 ### Cloudflare
 
-Default runtime is **Containers** (`cloudflare.runtime: "containers"` in `deploy/config.ts`).
+Default runtime is **Containers** (`cloudflare.runtime: "containers"` in `deploy/config.ts`). `wrangler.jsonc` is the **code config** for CLI deploys and [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/) Git integration — connect the repo and set the deploy command to `pnpm cf:deploy` (do not rely on dashboard autoconfig).
 
 **Containers (default)**
 
-1. Install CLI deps: `pnpm add -D wrangler @cloudflare/containers`
-2. Ensure Docker is available locally for image builds.
-3. Set secrets/vars for the container (at least the three required env vars) via the Cloudflare dashboard or `wrangler secret`.
-4. Deploy: `pnpm cf:deploy` (or `wrangler deploy`).
+1. Ensure Docker is available locally for image builds.
+2. Set the three required secrets on the Worker (`wrangler.jsonc` lists them under `secrets.required`):
 
-The Worker at `deploy/cloudflare/container-worker.ts` proxies all traffic to the Next.js container on port 3000.
+   ```bash
+   pnpm wrangler secret put DATABASE_URL
+   pnpm wrangler secret put BETTER_AUTH_SECRET
+   pnpm wrangler secret put BETTER_AUTH_URL
+   ```
+
+   Optional SMTP, branding, and other string vars can be added the same way; the Worker forwards all string bindings into the Next.js container.
+3. Deploy: `pnpm cf:deploy` (or `wrangler deploy`).
+
+The Worker at `deploy/cloudflare/container-worker.ts` proxies all traffic to the Next.js container on port 3000 (`instance_type: basic` in config).
 
 **Workers / OpenNext (opt-in)**
 
 1. In `deploy/config.ts`, set `cloudflare.runtime: "workers"`.
 2. Run `pnpm deploy:sync` (writes OpenNext-shaped `wrangler.jsonc` + `open-next.config.ts`).
-3. Install: `pnpm add -D wrangler @opennextjs/cloudflare`
+3. Install: `pnpm add -D @opennextjs/cloudflare`
 4. Configure [Hyperdrive](https://developers.cloudflare.com/hyperdrive/) for Postgres and bind it in `wrangler.jsonc` — this kit’s `pg` + Drizzle path is not Hyperdrive-wired yet; treat Workers as advanced.
 5. Build/deploy with OpenNext (`opennextjs-cloudflare deploy`) or follow [Cloudflare’s Next.js guide](https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/).
 
@@ -69,7 +76,7 @@ Switch back with `cloudflare.runtime: "containers"` and `pnpm deploy:sync`.
 
 Rough guide for this kit’s default **Containers** path. Confirm current rates in [Containers pricing](https://developers.cloudflare.com/containers/pricing/) and [Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/).
 
-Containers require the **Workers Paid** plan (**$5/mo** base). The Worker at `deploy/cloudflare/container-worker.ts` proxies to a Next.js container (`sleepAfter: "10m"`, `max_instances: 3`). You are billed for container memory/CPU/disk while the instance is awake, plus Worker and Durable Object usage (usually inside the Paid allotment at auth scale).
+Containers require the **Workers Paid** plan (**$5/mo** base). The Worker at `deploy/cloudflare/container-worker.ts` proxies to a Next.js container (`sleepAfter: "10m"`, `instance_type: basic`, `max_instances: 3`). You are billed for container memory/CPU/disk while the instance is awake, plus Worker and Durable Object usage (usually inside the Paid allotment at auth scale).
 
 | Billable piece | Role | Notes |
 |----------------|------|--------|

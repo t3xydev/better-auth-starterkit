@@ -60,6 +60,7 @@
     "devDependencies": {
         "@better-auth/cli": "^1.4.21",
         "@biomejs/biome": "2.2.4",
+        "@cloudflare/containers": "^0.3.7",
         "@tailwindcss/postcss": "^4.1.13",
         "@types/node": "^24.5.2",
         "@types/nodemailer": "^8.0.1",
@@ -74,7 +75,8 @@
         "tsx": "^4.23.5",
         "turbo": "^2.5.7",
         "tw-animate-css": "^1.3.8",
-        "typescript": "^5.9.2"
+        "typescript": "^5.9.2",
+        "wrangler": "^4.131.0"
     },
     "pnpm": {
         "overrides": {},

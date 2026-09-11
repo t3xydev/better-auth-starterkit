@@ -10,6 +10,7 @@
 		{
 			"class_name": "AuthServerContainer",
 			"image": "./Dockerfile",
+			"instance_type": "basic",
 			"max_instances": 3
 		}
 	],
@@ -27,6 +28,9 @@
 			"new_sqlite_classes": ["AuthServerContainer"]
 		}
 	],
+	"secrets": {
+		"required": ["DATABASE_URL", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL"]
+	},
 	"observability": {
 		"enabled": true
 	}

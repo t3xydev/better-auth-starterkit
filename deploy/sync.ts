@@ -51,7 +51,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=builder /app/patches ./patches
-COPY --from=builder /app/next.config.ts ./next.config.ts
+COPY --from=builder /app/next.config.mjs ./next.config.mjs
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
@@ -136,8 +136,9 @@ restartPolicyMaxRetries = 5
 }
 
 function wranglerContainers(): string {
-    const { name, cloudflare } = deployConfig
+    const { name, cloudflare, requiredEnv } = deployConfig
     const className = cloudflare.containerClassName
+    const secrets = requiredEnv.map((key) => `"${key}"`).join(", ")
     return `// ${GENERATED}
 // Cloudflare runtime: containers (default)
 {
@@ -150,6 +151,7 @@ function wranglerContainers(): string {
 		{
 			"class_name": "${className}",
 			"image": "./Dockerfile",
+			"instance_type": "${cloudflare.instanceType}",
 			"max_instances": 3
 		}
 	],
@@ -167,6 +169,9 @@ function wranglerContainers(): string {
 			"new_sqlite_classes": ["${className}"]
 		}
 	],
+	"secrets": {
+		"required": [${secrets}]
+	},
 	"observability": {
 		"enabled": true
 	}
