@@ -47,7 +47,13 @@ export function SignInView({ appName }: { appName?: string }) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <AuthFormValidationToast>
-                        <AuthForm localization={{}} view="EMAIL_OTP" />
+                        <AuthForm
+                            localization={{}}
+                            view="EMAIL_OTP"
+                            classNames={{
+                                otpInputContainer: "w-full justify-center"
+                            }}
+                        />
                     </AuthFormValidationToast>
                     <Button
                         type="button"
