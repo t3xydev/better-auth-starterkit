@@ -48,8 +48,9 @@ import {
     updateClient,
     deleteClient,
     rotateClientSecret,
+    isPublicOAuthClient,
+    type OAuthClientRow,
 } from "@/lib/actions/admin-clients"
-import type { OAuthClientRow } from "@/lib/actions/admin-clients"
 import {
     PROVIDER_SCOPES,
     TRUST_TIERS,
@@ -77,7 +78,7 @@ export function ClientForm({ client }: { client: OAuthClientRow }) {
     const [skipConsent, setSkipConsent] = useState(client.skipConsent ?? false)
     const [enableEndSession, setEnableEndSession] = useState(client.enableEndSession ?? false)
     const [requirePKCE, setRequirePKCE] = useState(client.requirePKCE ?? true)
-    const [isPublic, setIsPublic] = useState(client.public ?? false)
+    const [isPublic, setIsPublic] = useState(isPublicOAuthClient(client))
     const [disabled, setDisabled] = useState(client.disabled ?? false)
     const [tos, setTos] = useState(client.tos ?? "")
     const [policy, setPolicy] = useState(client.policy ?? "")
@@ -499,7 +500,7 @@ export function ClientForm({ client }: { client: OAuthClientRow }) {
                     <CardTitle className="text-base text-destructive">Danger Zone</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-3">
-                    {!client.public && (
+                    {!isPublicOAuthClient(client) && (
                         <Button
                             variant="outline"
                             onClick={() => setShowRotateDialog(true)}

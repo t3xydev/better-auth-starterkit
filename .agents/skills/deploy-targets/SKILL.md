@@ -53,4 +53,4 @@ Generated (do not hand-edit): `Dockerfile`, `.dockerignore`, `docker-compose.yml
 
 ## Classic hosts
 
-Render / Fly / similar (no Docker): `pnpm db:migrate && pnpm build` then `pnpm start`. Schema changes still use local `pnpm db:sync` before deploy.
+Render / Fly / similar (no Docker): `pnpm build` then `pnpm start` (start applies pending migrations). Schema changes still use local `pnpm db:sync` before deploy.

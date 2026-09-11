@@ -1,7 +1,7 @@
 "use server"
 
+import { desc, eq } from "drizzle-orm"
 import { headers } from "next/headers"
-import { eq, desc } from "drizzle-orm"
 import { db } from "@/database/db"
 import { oauthClients } from "@/database/schema"
 import { auth } from "@/lib/auth"
@@ -13,7 +13,7 @@ import {
     getTrustTier,
     isTrustTier,
     mergeTrustMetadata,
-    type TrustTier,
+    type TrustTier
 } from "@/lib/client-trust"
 
 async function requireAdmin() {
@@ -25,12 +25,15 @@ async function requireAdmin() {
 
 export type OAuthClientRow = typeof oauthClients.$inferSelect
 
+export function isPublicOAuthClient(
+    client: Pick<OAuthClientRow, "tokenEndpointAuthMethod">
+) {
+    return client.tokenEndpointAuthMethod === "none"
+}
+
 export async function getClients(): Promise<OAuthClientRow[]> {
     await requireAdmin()
-    return db
-        .select()
-        .from(oauthClients)
-        .orderBy(desc(oauthClients.createdAt))
+    return db.select().from(oauthClients).orderBy(desc(oauthClients.createdAt))
 }
 
 export async function getClient(id: string): Promise<OAuthClientRow | null> {
@@ -57,12 +60,14 @@ export async function createClient(data: {
     const trustTier: TrustTier = data.trustTier ?? "developer"
 
     if (data.skipConsent && !canSkipConsent(trustTier)) {
-        throw new Error("Consent bypass is only allowed for first-party clients")
+        throw new Error(
+            "Consent bypass is only allowed for first-party clients"
+        )
     }
 
     const scopes = filterScopesForTier(
         data.scopes ?? ["openid", "profile", "email"],
-        trustTier,
+        trustTier
     )
     assertScopesForTier(scopes, trustTier)
 
@@ -72,25 +77,30 @@ export async function createClient(data: {
             redirect_uris: data.redirectUris,
             client_name: data.name,
             scope: scopes.join(" ") || "openid profile email",
-            skip_consent: data.skipConsent === true && canSkipConsent(trustTier),
+            skip_consent:
+                data.skipConsent === true && canSkipConsent(trustTier),
             enable_end_session: data.enableEndSession ?? true,
             client_secret_expires_at: 0,
             require_pkce: true,
-            metadata: mergeTrustMetadata({}, {
-                trustTier,
-                reviewedAt: new Date().toISOString(),
-                reviewedBy: session.user.id,
-            }),
+            metadata: mergeTrustMetadata(
+                {},
+                {
+                    trustTier,
+                    reviewedAt: new Date().toISOString(),
+                    reviewedBy: session.user.id
+                }
+            ),
             ...(data.uri && { client_uri: data.uri }),
-            ...(data.type === "public" && { token_endpoint_auth_method: "none" }),
-        },
+            ...(data.type === "public" && {
+                token_endpoint_auth_method: "none"
+            })
+        }
     })
 
     return {
-        id: result.id as string,
-        clientId: result.clientId as string,
-        clientSecret: result.clientSecret as string | null,
-        name: result.name as string | null,
+        clientId: result.client_id,
+        clientSecret: result.client_secret ?? null,
+        name: result.client_name ?? null
     }
 }
 
@@ -113,7 +123,7 @@ export async function updateClient(
         policy?: string | null
         isPublic?: boolean | null
         trustTier?: TrustTier
-    },
+    }
 ) {
     const session = await requireAdmin()
 
@@ -123,11 +133,18 @@ export async function updateClient(
     const trustTier = data.trustTier ?? getTrustTier(existing.metadata)
 
     if (data.skipConsent === true && !canSkipConsent(trustTier)) {
-        throw new Error("Consent bypass is only allowed for first-party clients")
+        throw new Error(
+            "Consent bypass is only allowed for first-party clients"
+        )
     }
 
-    if (data.grantTypes?.includes("client_credentials") && !canUseClientCredentials(trustTier)) {
-        throw new Error("client_credentials requires partner or first-party trust")
+    if (
+        data.grantTypes?.includes("client_credentials") &&
+        !canUseClientCredentials(trustTier)
+    ) {
+        throw new Error(
+            "client_credentials requires partner or first-party trust"
+        )
     }
 
     if (data.scopes !== undefined && data.scopes !== null) {
@@ -139,7 +156,7 @@ export async function updateClient(
             ? mergeTrustMetadata(existing.metadata, {
                   trustTier: data.trustTier,
                   reviewedAt: new Date().toISOString(),
-                  reviewedBy: session.user.id,
+                  reviewedBy: session.user.id
               })
             : undefined
 
@@ -149,23 +166,39 @@ export async function updateClient(
             ...(data.name !== undefined && { name: data.name }),
             ...(data.uri !== undefined && { uri: data.uri }),
             ...(data.icon !== undefined && { icon: data.icon }),
-            ...(data.redirectUris !== undefined && { redirectUris: data.redirectUris }),
+            ...(data.redirectUris !== undefined && {
+                redirectUris: data.redirectUris
+            }),
             ...(data.scopes !== undefined && { scopes: data.scopes }),
             ...(data.skipConsent !== undefined && {
                 skipConsent:
-                    data.skipConsent === true ? canSkipConsent(trustTier) : data.skipConsent,
+                    data.skipConsent === true
+                        ? canSkipConsent(trustTier)
+                        : data.skipConsent
             }),
-            ...(data.enableEndSession !== undefined && { enableEndSession: data.enableEndSession }),
-            ...(data.requirePKCE !== undefined && { requirePKCE: data.requirePKCE }),
+            ...(data.enableEndSession !== undefined && {
+                enableEndSession: data.enableEndSession
+            }),
+            ...(data.requirePKCE !== undefined && {
+                requirePKCE: data.requirePKCE
+            }),
             ...(data.disabled !== undefined && { disabled: data.disabled }),
-            ...(data.grantTypes !== undefined && { grantTypes: data.grantTypes }),
-            ...(data.responseTypes !== undefined && { responseTypes: data.responseTypes }),
+            ...(data.grantTypes !== undefined && {
+                grantTypes: data.grantTypes
+            }),
+            ...(data.responseTypes !== undefined && {
+                responseTypes: data.responseTypes
+            }),
             ...(data.contacts !== undefined && { contacts: data.contacts }),
             ...(data.tos !== undefined && { tos: data.tos }),
             ...(data.policy !== undefined && { policy: data.policy }),
-            ...(data.isPublic !== undefined && { public: data.isPublic }),
+            ...(data.isPublic !== undefined && {
+                tokenEndpointAuthMethod: data.isPublic
+                    ? "none"
+                    : "client_secret_basic"
+            }),
             ...(metadata !== undefined && { metadata }),
-            updatedAt: new Date(),
+            updatedAt: new Date()
         })
         .where(eq(oauthClients.id, id))
 
@@ -182,12 +215,13 @@ export async function promoteClientTrustTier(id: string, trustTier: TrustTier) {
     const metadata = mergeTrustMetadata(existing.metadata, {
         trustTier,
         reviewedAt: new Date().toISOString(),
-        reviewedBy: session.user.id,
+        reviewedBy: session.user.id
     })
 
     const nextScopes = filterScopesForTier(existing.scopes, trustTier)
     const nextGrantTypes = (existing.grantTypes ?? []).filter((gt) => {
-        if (gt === "client_credentials") return canUseClientCredentials(trustTier)
+        if (gt === "client_credentials")
+            return canUseClientCredentials(trustTier)
         return true
     })
 
@@ -197,8 +231,10 @@ export async function promoteClientTrustTier(id: string, trustTier: TrustTier) {
             metadata,
             scopes: nextScopes,
             grantTypes: nextGrantTypes,
-            skipConsent: canSkipConsent(trustTier) ? existing.skipConsent : false,
-            updatedAt: new Date(),
+            skipConsent: canSkipConsent(trustTier)
+                ? existing.skipConsent
+                : false,
+            updatedAt: new Date()
         })
         .where(eq(oauthClients.id, id))
 
@@ -226,7 +262,10 @@ async function hashSecret(value: string): Promise<string> {
     const bytes = new Uint8Array(hashBuffer)
     let binary = ""
     for (const byte of bytes) binary += String.fromCharCode(byte)
-    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
+    return btoa(binary)
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "")
 }
 
 export async function rotateClientSecret(clientId: string) {

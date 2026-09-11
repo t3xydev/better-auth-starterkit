@@ -27,18 +27,18 @@ export const deployConfig = {
     /** Image build (no database required) */
     buildCommand: "pnpm build",
 
-    /** Apply committed Drizzle migrations */
+    /** Apply committed Drizzle migrations (`scripts/db-migrate.mjs`) */
     migrateCommand: "pnpm db:migrate",
 
-    /** Process start after migrations (non-container hosts) */
+    /**
+     * Process start. `pnpm start` already migrates, then serves Next.js.
+     * DATABASE_URL is needed when the process starts, not when the image builds.
+     */
     startCommand: "pnpm start",
 
-    /**
-     * Container entrypoint: migrate at runtime, then start.
-     * DATABASE_URL is needed when the container starts, not when the image builds.
-     */
+    /** Container entrypoint — same as start (migrate is inside `pnpm start`). */
     get containerStartCommand() {
-        return `${this.migrateCommand} && ${this.startCommand}`
+        return this.startCommand
     },
 
     /** Required production env vars */
