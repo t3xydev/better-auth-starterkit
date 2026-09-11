@@ -48,9 +48,9 @@ import {
     updateClient,
     deleteClient,
     rotateClientSecret,
-    isPublicOAuthClient,
     type OAuthClientRow,
 } from "@/lib/actions/admin-clients"
+import { isPublicOAuthClient } from "@/lib/oauth-client"
 import {
     PROVIDER_SCOPES,
     TRUST_TIERS,

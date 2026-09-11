@@ -25,12 +25,6 @@ async function requireAdmin() {
 
 export type OAuthClientRow = typeof oauthClients.$inferSelect
 
-export function isPublicOAuthClient(
-    client: Pick<OAuthClientRow, "tokenEndpointAuthMethod">
-) {
-    return client.tokenEndpointAuthMethod === "none"
-}
-
 export async function getClients(): Promise<OAuthClientRow[]> {
     await requireAdmin()
     return db.select().from(oauthClients).orderBy(desc(oauthClients.createdAt))

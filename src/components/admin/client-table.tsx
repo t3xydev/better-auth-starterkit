@@ -39,8 +39,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { deleteClient, isPublicOAuthClient, toggleClient } from "@/lib/actions/admin-clients"
+import { deleteClient, toggleClient } from "@/lib/actions/admin-clients"
 import type { OAuthClientRow } from "@/lib/actions/admin-clients"
+import { isPublicOAuthClient } from "@/lib/oauth-client"
 import { TRUST_TIER_LABELS, getTrustTier } from "@/lib/client-trust"
 
 export function ClientTable({ clients }: { clients: OAuthClientRow[] }) {
