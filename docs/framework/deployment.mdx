@@ -31,7 +31,8 @@ Required env on every target: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH
 
 1. Create a service from this repo and attach Postgres (or set `DATABASE_URL`).
 2. Set `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` (your public URL).
-3. Deploy — `railway.toml` selects the Dockerfile and healthcheck.
+3. Deploy — `railway.toml` selects the Dockerfile and healthcheck (`/api/health`).
+4. Point the public domain at port **3000**. Clear leftover dashboard settings from other templates (for example a custom build command, healthcheck `/health`, or target port `8080`) — those override the file and will fail the deploy.
 
 ### Dokploy
 

@@ -30,12 +30,14 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches
-RUN pnpm install --frozen-lockfile
+# Skip lifecycle scripts: postinstall (fumadocs-mdx) needs source.config.ts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+RUN pnpm rebuild && pnpm run postinstall
 RUN ${buildCommand}
 
 FROM base AS runner
